@@ -18,7 +18,7 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-muted-foreground mb-4 max-w-md">
-              Empowering SMBs with Cloud, AI, and Smart Technology Solutions. 
+              Empowering Small & Medium Businesses with Cloud, AI, and Smart Technology Solutions. 
               No jargon, just scalable solutions that grow with your business.
             </p>
             <div className="flex space-x-4">

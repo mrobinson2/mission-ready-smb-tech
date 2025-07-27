@@ -232,7 +232,7 @@ const Contact = () => {
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-foreground">SMB Focus</h3>
+                      <h3 className="font-semibold text-foreground">Small Business Focus</h3>
                       <p className="text-muted-foreground">Solutions designed specifically for small and medium business needs</p>
                     </div>
                   </div>

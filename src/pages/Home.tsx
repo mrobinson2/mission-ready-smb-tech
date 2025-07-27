@@ -15,7 +15,7 @@ const Home = () => {
     {
       icon: Brain,
       title: "AI Advisory",
-      description: "Help SMBs understand and responsibly adopt GenAI tools, AI agents, and automation workflows.",
+      description: "Help small and medium businesses understand and responsibly adopt GenAI tools, AI agents, and automation workflows.",
       color: "text-purple-600"
     },
     {
@@ -59,7 +59,7 @@ const Home = () => {
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Empowering SMBs with{" "}
+            Empowering Small & Medium Businesses with{" "}
             <span className="text-blue-400">Cloud, AI, and Smart Technology</span> Solutions
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-200">

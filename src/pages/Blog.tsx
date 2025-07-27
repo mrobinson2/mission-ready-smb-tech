@@ -6,7 +6,7 @@ import { Calendar, Clock, ArrowRight, BookOpen } from "lucide-react";
 
 const Blog = () => {
   const featuredPost = {
-    title: "The SMB Guide to AI Implementation: Start Small, Think Big",
+    title: "The Small Business Guide to AI Implementation: Start Small, Think Big",
     excerpt: "How small and medium businesses can begin their AI journey without overwhelming complexity or massive budgets. Learn the practical first steps that deliver immediate value.",
     category: "AI Strategy",
     readTime: "8 min read",
@@ -16,7 +16,7 @@ const Blog = () => {
 
   const upcomingPosts = [
     {
-      title: "Cloud Cost Optimization: 5 Quick Wins for SMBs",
+      title: "Cloud Cost Optimization: 5 Quick Wins for Small Businesses",
       excerpt: "Simple strategies that can reduce your cloud spending by 30-50% without sacrificing performance or security.",
       category: "Cloud Strategy",
       readTime: "6 min read",
@@ -30,7 +30,7 @@ const Blog = () => {
       date: "Coming Soon"
     },
     {
-      title: "Automation Success Stories: Real SMB Transformations",
+      title: "Automation Success Stories: Real Small Business Transformations",
       excerpt: "Case studies of how small businesses have used automation to save time, reduce errors, and improve customer experience.",
       category: "Automation",
       readTime: "10 min read",
@@ -44,7 +44,7 @@ const Blog = () => {
       date: "Coming Soon"
     },
     {
-      title: "Security First: Essential Cloud Protection for SMBs",
+      title: "Security First: Essential Cloud Protection for Small Businesses",
       excerpt: "The critical security measures every small business should implement when moving to the cloud.",
       category: "Security",
       readTime: "9 min read",

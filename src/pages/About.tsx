@@ -90,7 +90,7 @@ const About = () => {
                 <Badge variant="secondary">30+ Years Experience</Badge>
                 <Badge variant="secondary">VP of Cloud Strategy</Badge>
                 <Badge variant="secondary">AI/ML Student</Badge>
-                <Badge variant="secondary">SMB Advocate</Badge>
+                <Badge variant="secondary">Small Business Advocate</Badge>
               </div>
               <Button asChild>
                 <Link to="/contact">Let's Connect</Link>
