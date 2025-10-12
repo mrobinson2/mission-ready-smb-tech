@@ -107,8 +107,8 @@ const About = () => {
               </h1>
               <p className="text-xl text-muted-foreground mb-6">
                 I live at the intersection of cloud, AI, and security - where innovation meets ironclad protection. 
-                My mission is to help organizations take advantage of tomorrow's technologies today, without 
-                compromising safety, trust, or compliance.
+                I'm inspired to help businesses of all sizes take advantage of tomorrow's technologies today, 
+                without compromising safety, trust, or compliance.
               </p>
               <p className="text-lg text-muted-foreground mb-8">
                 I'm a servant leader, strategist, and builder with 30 years of experience in cloud strategy, 
