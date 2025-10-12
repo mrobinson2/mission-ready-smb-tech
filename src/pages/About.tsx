@@ -110,7 +110,7 @@ const About = () => {
                 I'm inspired to help businesses of all sizes take advantage of tomorrow's technologies today, 
                 without compromising safety, trust, or compliance.
               </p>
-              <p className="text-lg text-muted-foreground mb-8">
+              <p className="text-xl text-muted-foreground mb-8">
                 I'm a servant leader, strategist, and builder with 30 years of experience in cloud strategy, 
                 infrastructure, and enterprise transformation. I lead with empathy, clarity, and a bias for 
                 action—because real leadership isn't about control, it's about creating the conditions for 
