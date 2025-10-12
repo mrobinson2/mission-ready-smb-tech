@@ -14,6 +14,7 @@ import {
   Heart,
   Lightbulb
 } from "lucide-react";
+import profilePhoto from "@/assets/mrobinson-profile-photo.jpg";
 
 const About = () => {
   const experience = [
@@ -37,15 +38,38 @@ const About = () => {
     }
   ];
 
+  const certifications = [
+    {
+      title: "Post-Graduate AI for Leaders",
+      institution: "University of Texas at Austin",
+      status: "Completed"
+    },
+    {
+      title: "Software Engineering with Generative AI Agents",
+      institution: "Vanderbilt University",
+      status: "Certified"
+    },
+    {
+      title: "Microsoft AI Fundamentals (AI-900)",
+      institution: "Microsoft",
+      status: "Certified"
+    },
+    {
+      title: "Certified Cloud Security Professional (CCSP)",
+      institution: "ISC²",
+      status: "Certified"
+    }
+  ];
+
   const skills = [
     "Cloud Architecture (Azure, AWS)",
     "Infrastructure as Code (Terraform)",
     "GenAI & Machine Learning",
-    "Process Improvement",
-    "IT Operations & Security",
+    "Cybersecurity & Zero Trust",
+    "IT GRC & Compliance",
+    "Enterprise Architecture",
     "Digital Transformation",
-    "Team Leadership",
-    "Customer-Centric Consulting"
+    "Strategic Leadership"
   ];
 
   const values = [
@@ -81,24 +105,34 @@ const About = () => {
               <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
                 Meet Michael Robinson
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                With nearly 30 years of IT experience, I've seen technology evolve from mainframes 
-                to cloud computing to AI. Now, I'm passionate about helping small and medium businesses 
-                leverage these powerful technologies to grow, automate, and stay secure.
+              <p className="text-xl text-muted-foreground mb-6">
+                I live at the intersection of cloud, AI, and security - where innovation meets ironclad protection. 
+                My mission is to help organizations take advantage of tomorrow's technologies today, without 
+                compromising safety, trust, or compliance.
+              </p>
+              <p className="text-lg text-muted-foreground mb-8">
+                I'm a servant leader, strategist, and builder with 30 years of experience in cloud strategy, 
+                infrastructure, and enterprise transformation. I lead with empathy, clarity, and a bias for 
+                action—because real leadership isn't about control, it's about creating the conditions for 
+                others to thrive.
               </p>
               <div className="flex flex-wrap gap-2 mb-8">
                 <Badge variant="secondary">30+ Years Experience</Badge>
                 <Badge variant="secondary">VP of Cloud Strategy</Badge>
-                <Badge variant="secondary">AI/ML Student</Badge>
-                <Badge variant="secondary">Small Business Advocate</Badge>
+                <Badge variant="secondary">CCSP Certified</Badge>
+                <Badge variant="secondary">AI & Security Leader</Badge>
               </div>
               <Button asChild>
                 <Link to="/contact">Let's Connect</Link>
               </Button>
             </div>
             <div className="lg:text-center">
-              <div className="w-64 h-64 mx-auto bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                <span className="text-6xl font-bold text-primary-foreground">MR</span>
+              <div className="w-64 h-64 mx-auto rounded-full overflow-hidden shadow-lg">
+                <img 
+                  src={profilePhoto} 
+                  alt="Michael Robinson - VP of Cloud Strategy and Enablement" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -142,46 +176,53 @@ const About = () => {
         </div>
       </section>
 
-      {/* Current Education */}
+      {/* Certifications & Expertise */}
       <section className="py-24 bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <GraduationCap className="h-8 w-8 text-primary" />
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                  Continuous Learning
-                </h2>
-              </div>
-              <p className="text-xl text-muted-foreground mb-6">
-                Currently pursuing a postgraduate certification in AI and Machine Learning 
-                from the University of Texas at Austin to stay at the forefront of 
-                emerging technologies.
-              </p>
-              <p className="text-muted-foreground">
-                This commitment to learning ensures that MRTek.ai clients benefit from 
-                the latest innovations in artificial intelligence and automation, 
-                applied with the wisdom of decades of practical experience.
-              </p>
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <GraduationCap className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+                Certifications & Continuous Learning
+              </h2>
             </div>
-            <div>
-              <Card className="border border-border">
-                <CardHeader>
-                  <CardTitle>Key Expertise Areas</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
-                    {skills.map((skill, index) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        <span className="text-sm text-foreground">{skill}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Staying at the forefront of cloud, AI, and security through continuous education and certification
+            </p>
           </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {certifications.map((cert, index) => (
+              <Card key={index} className="border border-border">
+                <CardHeader>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="outline">{cert.status}</Badge>
+                  </div>
+                  <CardTitle className="text-lg">{cert.title}</CardTitle>
+                  <CardDescription>{cert.institution}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="border border-border">
+            <CardHeader>
+              <CardTitle>Core Expertise Areas</CardTitle>
+              <CardDescription>
+                Three decades of experience building secure, scalable cloud solutions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {skills.map((skill, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                    <span className="text-sm text-foreground">{skill}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -216,23 +257,53 @@ const About = () => {
         </div>
       </section>
 
-      {/* Personal Touch */}
+      {/* Leadership Philosophy */}
       <section className="py-24 bg-primary">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <Heart className="h-12 w-12 text-primary-foreground mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-              Why I Do This
+            <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-8 text-center">
+              Leadership Philosophy
             </h2>
-            <p className="text-xl text-primary-foreground/90 mb-8">
-              Having worked in large enterprise environments, I've seen firsthand how the right technology 
-              can transform business operations. My mission is to bring that same level of strategic 
-              technology thinking to small and medium businesses - without the enterprise complexity or cost.
-            </p>
-            <p className="text-lg text-primary-foreground/80">
-              I believe every business deserves access to modern, secure, and scalable technology solutions 
-              that help them compete and grow in today's digital landscape.
-            </p>
+            
+            <div className="space-y-6 text-primary-foreground/90">
+              <p className="text-xl">
+                My leadership isn't flashy - it's framework-driven. I bring calm to chaos, shield my team from 
+                noise, and build platforms that empower others to succeed.
+              </p>
+              
+              <div className="grid md:grid-cols-2 gap-6 my-8">
+                <Card className="bg-primary-foreground/10 border-primary-foreground/20">
+                  <CardHeader>
+                    <CardTitle className="text-primary-foreground">What Drives Me</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-primary-foreground/90">
+                    <p>• Building secure cloud foundations that scale with business ambition</p>
+                    <p>• Baking cybersecurity into every layer so innovation can thrive risk-free</p>
+                    <p>• Demystifying AI – bridging boardroom strategy with technical execution</p>
+                    <p>• Modernizing legacy platforms into agile powerhouses</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-primary-foreground/10 border-primary-foreground/20">
+                  <CardHeader>
+                    <CardTitle className="text-primary-foreground">My Approach</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-primary-foreground/90">
+                    <p>• Lead with empathy, clarity, and bias for action</p>
+                    <p>• Create psychological safety while driving results</p>
+                    <p>• Translate between tech teams and C-suites</p>
+                    <p>• Own mistakes publicly, give credit generously</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <p className="text-lg text-center italic">
+                Your team doesn't need a superhero. They need someone who listens, protects, 
+                empowers—and gets out of the way. If you're looking for lasting impact, strategic 
+                clarity, and human-first leadership - let's talk.
+              </p>
+            </div>
           </div>
         </div>
       </section>
