@@ -24,7 +24,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <img src={mrtekLogo} alt="MRTek.ai Logo" className="h-10 w-auto" />
+            <img src={mrtekLogo} alt="MRTek.ai Logo" className="h-14 w-auto" />
             <div className="flex flex-col">
               <span className="font-bold text-lg text-foreground">MRTek.ai</span>
               <span className="text-xs text-muted-foreground">Mission Ready Tech</span>
