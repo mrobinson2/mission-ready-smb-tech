@@ -9,52 +9,39 @@ const Blog = () => {
     title: "The Small Business Guide to AI Implementation: Start Small, Think Big",
     excerpt: "How small and medium businesses can begin their AI journey without overwhelming complexity or massive budgets. Learn the practical first steps that deliver immediate value.",
     category: "AI Strategy",
-    readTime: "8 min read",
-    date: "Coming Soon",
+    readTime: "15 min read",
+    date: "December 2024",
+    slug: "small-business-ai-guide",
     featured: true
   };
 
   const upcomingPosts = [
     {
-      title: "Cloud Cost Optimization: 5 Quick Wins for Small Businesses",
-      excerpt: "Simple strategies that can reduce your cloud spending by 30-50% without sacrificing performance or security.",
-      category: "Cloud Strategy",
-      readTime: "6 min read",
-      date: "Coming Soon"
-    },
-    {
-      title: "Why Your Small Business Needs a Technology Roadmap",
-      excerpt: "How strategic technology planning can save money, improve efficiency, and position your business for growth.",
-      category: "Strategy",
-      readTime: "5 min read",
-      date: "Coming Soon"
-    },
-    {
-      title: "Automation Success Stories: Real Small Business Transformations",
-      excerpt: "Case studies of how small businesses have used automation to save time, reduce errors, and improve customer experience.",
-      category: "Automation",
+      title: "From PDFs to Profit: Automating Invoices, POs, and Receipts",
+      excerpt: "Document AI for small biz finance ops (no-code first). Reduce data entry by 50% or more with simple automation + guardrails.",
+      category: "Document AI",
       readTime: "10 min read",
       date: "Coming Soon"
     },
     {
-      title: "The Truth About AI Customer Service for Small Business",
-      excerpt: "Separating AI hype from reality: what actually works for small business customer service and what doesn't.",
-      category: "AI Implementation",
-      readTime: "7 min read",
+      title: "Website FAQ to 24/7 Support: Build a Safe AI Assistant on Your Content",
+      excerpt: "Convert policies/FAQ/SOPs into a private Q&A bot. Deflect 30–40% of repetitive questions while keeping a human in the loop.",
+      category: "AI Support",
+      readTime: "12 min read",
       date: "Coming Soon"
     },
     {
-      title: "Security First: Essential Cloud Protection for Small Businesses",
-      excerpt: "The critical security measures every small business should implement when moving to the cloud.",
-      category: "Security",
-      readTime: "9 min read",
+      title: "Marketing, But Sustainable: One Article → Five Channels in Your Brand Voice",
+      excerpt: "Repurpose content with style guides, prompts, and approvals. A weekly 2-hour ritual that fills your content calendar for 7–10 days.",
+      category: "Marketing Automation",
+      readTime: "8 min read",
       date: "Coming Soon"
     },
     {
-      title: "Building vs. Buying: Technology Decisions for Growing Companies",
-      excerpt: "When to invest in custom solutions and when off-the-shelf tools are the smarter choice for your business.",
-      category: "Strategy",
-      readTime: "6 min read",
+      title: "AI for Field Teams: Checklists, Photos, and 'Done Right' Documentation",
+      excerpt: "Mobile-first workflows: job checklists, photo evidence, and customer summaries. Faster jobs, fewer callbacks, clean records customers appreciate.",
+      category: "Field Operations",
+      readTime: "11 min read",
       date: "Coming Soon"
     }
   ];
@@ -128,8 +115,10 @@ const Blog = () => {
               <CardDescription className="text-lg">{featuredPost.excerpt}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button disabled className="opacity-50">
-                Coming Soon
+              <Button asChild>
+                <Link to="/blog/small-business-ai-guide">
+                  Read Article <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
               </Button>
             </CardContent>
           </Card>
