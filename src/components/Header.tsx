@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import mrtekLogo from "@/assets/mrtek-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,9 +24,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">MR</span>
-            </div>
+            <img src={mrtekLogo} alt="MRTek.ai Logo" className="h-10 w-auto" />
             <div className="flex flex-col">
               <span className="font-bold text-lg text-foreground">MRTek.ai</span>
               <span className="text-xs text-muted-foreground">Mission Ready Tech</span>
