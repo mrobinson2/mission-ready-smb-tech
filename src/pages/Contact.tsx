@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { SchedulerModal } from "@/components/SchedulerModal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,21 +28,35 @@ const Contact = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [schedulerOpen, setSchedulerOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Message Sent!",
         description: "Thank you for your interest. I'll get back to you within 24 hours.",
       });
       setFormData({ name: "", email: "", company: "", service: "", message: "" });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again or email directly.",
+        variant: "destructive"
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -67,7 +83,8 @@ const Contact = () => {
       title: "Schedule a Call",
       description: "Book a 30-minute consultation",
       action: "Schedule Now",
-      href: "#" // Would integrate with Calendly
+      href: "#",
+      onClick: () => setSchedulerOpen(true)
     }
   ];
 
@@ -108,11 +125,17 @@ const Contact = () => {
                   <CardDescription>{method.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button asChild variant="outline" className="w-full">
-                    <a href={method.href} target={method.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+                  {method.onClick ? (
+                    <Button variant="outline" className="w-full" onClick={method.onClick}>
                       {method.action}
-                    </a>
-                  </Button>
+                    </Button>
+                  ) : (
+                    <Button asChild variant="outline" className="w-full">
+                      <a href={method.href} target={method.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+                        {method.action}
+                      </a>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -305,6 +328,8 @@ const Contact = () => {
           </Button>
         </div>
       </section>
+
+      <SchedulerModal open={schedulerOpen} onOpenChange={setSchedulerOpen} />
     </div>
   );
 };
