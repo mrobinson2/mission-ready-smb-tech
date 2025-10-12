@@ -60,7 +60,7 @@ const Contact = () => {
       title: "LinkedIn",
       description: "Connect professionally",
       action: "View Profile",
-      href: "https://linkedin.com/in/michaelrobinson"
+      href: "https://www.linkedin.com/in/mrobinson2/"
     },
     {
       icon: Calendar,
