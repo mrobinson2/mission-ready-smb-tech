@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Mic, CheckCircle } from "lucide-react";
+import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Mic, CheckCircle, Calendar } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Home = () => {
@@ -10,25 +10,25 @@ const Home = () => {
     {
       icon: Cloud,
       title: "Cloud Consulting",
-      description: "Cloud security, architecture, migration planning, and cost optimization with vendor-neutral strategies.",
+      description: "Secure cloud systems that grow with your business and cut costs without vendor lock-in. Expect 30-50% lower infrastructure expenses.",
       color: "text-blue-600"
     },
     {
       icon: Brain,
       title: "AI Advisory",
-      description: "Help small and medium businesses understand and responsibly adopt GenAI tools, AI agents, and automation workflows.",
+      description: "Responsible AI guidance to automate simple tasks and make better decisions. Prioritize jobs by profit per hour for maximum efficiency.",
       color: "text-purple-600"
     },
     {
       icon: Code,
       title: "Website & Automation",
-      description: "Simple, clean web design paired with automation of business processes using low-code tools.",
+      description: "Clean, easy-to-use websites connected to simple automations that handle forms, updates, and CRM entries.",
       color: "text-green-600"
     },
     {
       icon: Users,
       title: "Fractional CTO",
-      description: "Technology leadership, digital transformation guidance, and scalable strategy for growing companies.",
+      description: "Part-time tech leadership to align your tools with business goals. Clear direction without full-time executive costs.",
       color: "text-orange-600"
     }
   ];
@@ -36,18 +36,18 @@ const Home = () => {
   const values = [
     {
       icon: Shield,
-      title: "Trust",
-      description: "Built on 30 years of enterprise IT experience"
+      title: "Enterprise Experience",
+      description: "30 years of real-world IT experience adapted for small business needs"
     },
     {
       icon: Zap,
-      title: "Innovation",
-      description: "Cutting-edge AI and cloud solutions"
+      title: "Practical AI",
+      description: "Responsible AI with human oversight, clear guidelines, and strong data security"
     },
     {
       icon: Target,
-      title: "Results",
-      description: "Focused on your business growth and success"
+      title: "Measurable Results",
+      description: "Faster customer responses, fewer missed leads, and smoother daily operations"
     }
   ];
 
@@ -56,16 +56,20 @@ const Home = () => {
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${heroImage})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${heroImage})` }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Empowering Small & Medium Businesses with{" "}
-            <span className="text-blue-400">Cloud, AI, and Smart Technology</span> Solutions
+            Helping Small and Medium Businesses Use Technology to{" "}
+            <span className="text-blue-400">Save Time and Work Smarter</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-200">
-            No jargon, just scalable solutions that grow with your business. 
-            30 years of enterprise experience, now focused on helping small and medium businesses thrive.
+          <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto text-gray-200">
+            We help you handle customer communications better, reduce routine manual work, and avoid missed opportunities. 
+            With 30 years of hands-on enterprise experience, we deliver straightforward cloud, AI, and automation tools 
+            that fit your budget and grow with your business.
+          </p>
+          <p className="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">
+            Call today to find out how your business can save time and money while improving customer service.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
@@ -84,19 +88,19 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                Featured Service
+                Core Offering
               </Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                AI Digital Assistant
+                Your Always-On Office Helper
               </h2>
               <p className="text-xl text-muted-foreground mb-6">
-                Never miss another customer. Your AI-powered virtual assistant handles emails, 
-                calls, and messages while you focus on running your business.
+                Designed for small and medium businesses that can't afford to miss opportunities, 
+                our Digital Assistant handles routine customer communications so you can focus on what matters most.
               </p>
               <p className="text-muted-foreground mb-8">
-                Designed for small businesses who can't afford to miss opportunities. Our Digital Assistant 
-                reads and responds to emails, takes notes from voice conversations, acts as a virtual receptionist, 
-                answers customer questions, and even makes outbound calls—all while keeping a human in the loop.
+                We keep your team aware of and fully engaged in all customer communications, with strong data security 
+                built in and human oversight for every key decision. The Digital Office Assistant will pay for itself 
+                several times over and will enable your team to focus on higher-priority tasks.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -110,19 +114,19 @@ const Home = () => {
                   <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
                     <Phone className="h-5 w-5 text-blue-600" />
                   </div>
-                  <span className="text-foreground">Virtual Receptionist</span>
+                  <span className="text-foreground">Call Handling</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
                     <MessageSquare className="h-5 w-5 text-green-600" />
                   </div>
-                  <span className="text-foreground">Website Chatbot</span>
+                  <span className="text-foreground">Intelligent Chatbot</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
-                    <Mic className="h-5 w-5 text-orange-600" />
+                    <Calendar className="h-5 w-5 text-orange-600" />
                   </div>
-                  <span className="text-foreground">Voice Transcription</span>
+                  <span className="text-foreground">Appointment Scheduling</span>
                 </div>
               </div>
 
@@ -137,23 +141,27 @@ const Home = () => {
                   <Bot className="h-7 w-7 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground">Your Digital Office Assistant</h3>
-                  <p className="text-muted-foreground">Always on. Always professional.</p>
+                  <h3 className="text-xl font-semibold text-foreground">AI Digital Assistant</h3>
+                  <p className="text-muted-foreground">24/7 availability including nights, weekends, and holidays</p>
                 </div>
               </div>
               
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Reads, prioritizes, and drafts responses to incoming emails</p>
+                  <p className="text-muted-foreground">Answers calls and captures leads around the clock</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Answers calls and captures leads 24/7—nights, weekends, holidays</p>
+                  <p className="text-muted-foreground">Provides immediate website responses via intelligent chatbot (based on your FAQs and guidance)</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Provides instant answers on your website via intelligent chatbot</p>
+                  <p className="text-muted-foreground">Reads, prioritizes, and drafts responses to incoming emails (for your review and approval)</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Automatically schedules and confirms appointments</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -163,12 +171,6 @@ const Home = () => {
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <p className="text-muted-foreground">Transcribes voice conversations into searchable notes</p>
                 </div>
-              </div>
-
-              <div className="mt-8 p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground italic">
-                  "If this system helps capture just one additional job per month, it more than pays for itself."
-                </p>
               </div>
             </div>
           </div>
@@ -180,7 +182,7 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Mission Ready Technology Solutions
+              Additional Services
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               From cloud strategy to AI implementation, we provide the expertise 
@@ -216,15 +218,25 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Values Section */}
+      {/* Why Choose MRTek.ai Section */}
       <section className="py-24 bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Why Choose MRTek.ai?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Built on a foundation of enterprise experience with a focus on small business success.
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              We Bring Enterprise Know-How to Small and Medium Businesses
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <p className="text-lg text-muted-foreground">
+              Our 30 years of real-world IT experience means we understand what actually works at scale—and we adapt it 
+              so it fits your operations, budget, and team. We approach AI carefully: practical uses only, with human oversight, 
+              clear guidelines, and strong data security to keep things safe and reliable. Customers typically see faster customer 
+              responses, fewer missed leads, and smoother daily work—real, measurable improvements without overpromising or 
+              unnecessary complexity. We're here to help your business run better and grow steadily, one practical step at a time.
             </p>
           </div>
 
@@ -246,14 +258,23 @@ const Home = () => {
       <section className="py-24 bg-primary">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-            Ready to Transform Your Business?
+            Ready to See How This Fits Your Business?
           </h2>
-          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Let's discuss how cloud, AI, and smart automation can help your business grow more efficiently and securely.
+          <p className="text-xl text-primary-foreground/90 mb-4 max-w-2xl mx-auto">
+            Call today to find out how this could save your business time and money while improving customer service. 
+            No pressure—just a straightforward conversation.
           </p>
-          <Button asChild size="lg" variant="secondary">
-            <Link to="/contact">Schedule a Consultation</Link>
-          </Button>
+          <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+            Have questions? Send us a quick note, and we'll reply within 24 hours to discuss what might work best for you.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" variant="secondary">
+              <Link to="/contact">Schedule a Consultation</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+              <Link to="/contact">Send Us a Message</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>
