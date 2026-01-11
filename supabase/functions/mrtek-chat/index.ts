@@ -145,7 +145,7 @@ async function callAzureProxy(messages: ChatMessage[], threadId?: string): Promi
 
   console.log(`Calling Azure Function App: ${AZURE_CHAT_PROXY_URL}`);
   
-  const response = await fetch(AZURE_CHAT_PROXY_URL, {
+  const fetchResponse = await fetch(AZURE_CHAT_PROXY_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -156,17 +156,39 @@ async function callAzureProxy(messages: ChatMessage[], threadId?: string): Promi
     }),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Azure Function App error:", response.status, errorText);
-    throw new Error(`Azure Function error: ${response.status}`);
+  if (!fetchResponse.ok) {
+    const errorText = await fetchResponse.text();
+    console.error("Azure Function App error:", fetchResponse.status, errorText);
+    throw new Error(`Azure Function error: ${fetchResponse.status}`);
   }
 
-  const data = await response.json();
-  console.log("Azure Function App response received");
+  const data = await fetchResponse.json();
+  console.log("Azure Function App response received:", JSON.stringify(data, null, 2));
+  
+  // Handle structured response from Azure Function
+  // The Azure Function may return {reply_body, intent, ...} or {response: "..."}
+  let responseText = "No response received";
+  
+  if (typeof data === 'string') {
+    responseText = data;
+  } else if (data.reply_body) {
+    // Azure Function returns structured object with reply_body
+    responseText = data.reply_body;
+  } else if (data.response) {
+    // Direct response field
+    if (typeof data.response === 'string') {
+      responseText = data.response;
+    } else if (data.response.reply_body) {
+      responseText = data.response.reply_body;
+    }
+  } else if (data.text) {
+    responseText = data.text;
+  } else if (data.content) {
+    responseText = data.content;
+  }
   
   return {
-    response: data.response || "No response received",
+    response: responseText,
     threadId: data.threadId,
   };
 }
