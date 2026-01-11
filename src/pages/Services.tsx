@@ -17,7 +17,7 @@ import {
   Mail,
   Phone,
   MessageSquare,
-  Mic
+  Calendar
 } from "lucide-react";
 
 const Services = () => {
@@ -25,16 +25,18 @@ const Services = () => {
     {
       icon: Bot,
       title: "AI Digital Assistant",
-      subtitle: "Your 24/7 Virtual Office Team",
-      description: "Never miss another customer. Your AI-powered digital assistant handles emails, calls, and messages while you focus on running your business.",
+      subtitle: "Your Always-On Office Helper",
+      description: "Designed for small and medium businesses that can't afford to miss opportunities, our Digital Assistant handles routine customer communications so you can focus on what matters most.",
       features: [
-        "Email reading, prioritization, and draft responses",
-        "Virtual receptionist for inbound calls",
-        "Website chatbot for instant customer answers",
-        "Voice transcription and meeting notes",
-        "Outbound calls for confirmations and follow-ups"
+        "Always accessible to customers 24/7—including nights, weekends, and holidays",
+        "Answers calls and captures leads",
+        "Provides immediate website responses via intelligent chatbot (based on your FAQs and guidance)",
+        "Reads, prioritizes, and drafts responses to incoming emails (for your review and approval)",
+        "Automatically schedules and confirms appointments",
+        "Makes outbound calls for appointment confirmations and follow-ups",
+        "Transcribes voice conversations into searchable notes"
       ],
-      benefits: "Capture more leads, respond faster, and provide 24/7 coverage without hiring additional staff",
+      benefits: "The Digital Office Assistant will pay for itself several times over and will enable your team to focus on higher-priority tasks. Strong data security built in with human oversight for every key decision.",
       color: "bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200",
       iconColor: "text-purple-600"
     },
@@ -42,31 +44,32 @@ const Services = () => {
       icon: Cloud,
       title: "Cloud Consulting",
       subtitle: "Secure, Scalable, Cost-Effective",
-      description: "Navigate the complexity of cloud adoption with expert guidance from someone who has architected enterprise-scale solutions.",
+      description: "We help you set up secure cloud systems that grow with your business and cut costs without locking you into one provider.",
       features: [
-        "Cloud security assessment and strategy",
-        "Multi-cloud architecture design",
-        "Migration planning and execution",
-        "Cost optimization and vendor management",
-        "Vendor-neutral recommendations"
+        "Lower infrastructure expenses (often 30-50%)",
+        "Better availability and uptime",
+        "Stronger data security built-in",
+        "Vendor-neutral recommendations",
+        "Cloud is the preferred solution for most companies"
       ],
-      benefits: "Reduce infrastructure costs by 30-50% while improving security and scalability",
+      benefits: "Reduce infrastructure costs by 30-50% while improving security and scalability—these advantages come built-in with cloud.",
       color: "bg-blue-50 border-blue-200",
       iconColor: "text-blue-600"
     },
     {
       icon: Brain,
-      title: "AI Advisory Services",
+      title: "AI Advisory",
       subtitle: "Responsible AI Implementation",
-      description: "Understand and implement GenAI tools and automation workflows that actually benefit your business operations.",
+      description: "We guide you on using AI tools responsibly to automate simple tasks and make better decisions.",
       features: [
-        "AI readiness assessment",
-        "Custom AI agent development",
-        "GenAI tool integration and training",
-        "Automation workflow design",
-        "AI governance and ethics consulting"
+        "Analyze and prioritize jobs by profit per hour",
+        "Focus automatically on quick, high-paying work first",
+        "Simple 'best bang for your time' ranking method",
+        "Assess your current setup",
+        "Build custom workflows or analytics",
+        "Set clear guidelines for safe use"
       ],
-      benefits: "Automate routine tasks and improve decision-making with AI that works for your business",
+      benefits: "Free up time for your team and maximize profits without added risks or complexity.",
       color: "bg-purple-50 border-purple-200",
       iconColor: "text-purple-600"
     },
@@ -74,31 +77,31 @@ const Services = () => {
       icon: Code,
       title: "Website & Automation",
       subtitle: "Simple, Effective, Automated",
-      description: "Clean, professional websites paired with smart automation that streamlines your business processes.",
+      description: "We build clean, easy-to-use websites and connect them to simple automations that handle everyday processes like forms, updates, or CRM entries.",
       features: [
         "Modern, responsive web design",
-        "Low-code automation solutions",
-        "Power Automate and Quickbase integration",
-        "CRM and workflow optimization",
-        "Digital process transformation"
+        "Professional online presence",
+        "Automated form handling",
+        "CRM integration and updates",
+        "Hours saved each week on routine work"
       ],
-      benefits: "Professional online presence with automated workflows that save hours each week",
+      benefits: "Get a professional online presence plus hours saved each week on routine work.",
       color: "bg-green-50 border-green-200",
       iconColor: "text-green-600"
     },
     {
       icon: Users,
-      title: "Fractional CTO Services",
+      title: "Fractional CTO",
       subtitle: "Strategic Technology Leadership",
-      description: "Access VP-level technology strategy and leadership without the full-time executive cost.",
+      description: "Get part-time tech leadership to align your tools with business goals. We develop roadmaps, evaluate vendors, and mentor your team for steady growth.",
       features: [
         "Technology roadmap development",
-        "Digital transformation strategy",
         "Vendor evaluation and management",
         "Team development and mentoring",
-        "Board-level technology reporting"
+        "Align tools with business goals",
+        "Strategic direction for steady growth"
       ],
-      benefits: "Strategic technology direction that aligns with business goals and growth plans",
+      benefits: "Clear direction without the cost of a full-time executive.",
       color: "bg-orange-50 border-orange-200",
       iconColor: "text-orange-600"
     }
@@ -108,22 +111,22 @@ const Services = () => {
     {
       step: "01",
       title: "Discovery",
-      description: "We start with understanding your business goals, current challenges, and technology landscape."
+      description: "Understand the business, current tools, and goals."
     },
     {
       step: "02",
       title: "Strategy",
-      description: "Develop a clear roadmap with prioritized recommendations and realistic timelines."
+      description: "Design a pragmatic plan for cloud, AI, and automation use."
     },
     {
       step: "03",
       title: "Implementation",
-      description: "Execute the plan with regular check-ins and adjustments based on your feedback."
+      description: "Configure, integrate, and launch AI-powered workflows and assistants."
     },
     {
       step: "04",
       title: "Optimization",
-      description: "Continuous improvement and support to ensure long-term success and ROI."
+      description: "Monitor, improve, and expand automations based on real usage and metrics."
     }
   ];
 
@@ -133,7 +136,7 @@ const Services = () => {
       <section className="py-24 bg-gradient-to-br from-primary/5 via-background to-accent/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Technology Solutions That Scale With Your Business
+            Technology Solutions That Save Time and Work Smarter
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
             From cloud strategy to AI implementation, get enterprise-level expertise 
@@ -176,8 +179,8 @@ const Services = () => {
                     <h4 className="font-semibold text-foreground mb-4">What's Included:</h4>
                     <ul className="space-y-3">
                       {service.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-center gap-3">
-                          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                        <li key={featureIndex} className="flex items-start gap-3">
+                          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                           <span className="text-muted-foreground">{feature}</span>
                         </li>
                       ))}
@@ -277,17 +280,21 @@ const Services = () => {
       <section className="py-24 bg-primary">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
-            Ready to Get Started?
+            Ready to See How This Fits Your Business?
           </h2>
-          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Let's discuss your technology challenges and explore how we can help your business grow more efficiently.
+          <p className="text-xl text-primary-foreground/90 mb-4 max-w-2xl mx-auto">
+            Call today to find out how this could save your business time and money while improving customer service. 
+            No pressure—just a straightforward conversation.
+          </p>
+          <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
+            Have questions? Send us a quick note, and we'll reply within 24 hours to discuss what might work best for you.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" variant="secondary">
               <Link to="/contact">Schedule a Free Consultation</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-              <Link to="/about">Learn More About Our Approach</Link>
+              <Link to="/contact">Send Us a Message</Link>
             </Button>
           </div>
         </div>
