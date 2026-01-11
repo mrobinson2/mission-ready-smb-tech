@@ -12,11 +12,32 @@ import {
   Zap,
   Settings,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Bot,
+  Mail,
+  Phone,
+  MessageSquare,
+  Mic
 } from "lucide-react";
 
 const Services = () => {
   const services = [
+    {
+      icon: Bot,
+      title: "AI Digital Assistant",
+      subtitle: "Your 24/7 Virtual Office Team",
+      description: "Never miss another customer. Your AI-powered digital assistant handles emails, calls, and messages while you focus on running your business.",
+      features: [
+        "Email reading, prioritization, and draft responses",
+        "Virtual receptionist for inbound calls",
+        "Website chatbot for instant customer answers",
+        "Voice transcription and meeting notes",
+        "Outbound calls for confirmations and follow-ups"
+      ],
+      benefits: "Capture more leads, respond faster, and provide 24/7 coverage without hiring additional staff",
+      color: "bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200",
+      iconColor: "text-purple-600"
+    },
     {
       icon: Cloud,
       title: "Cloud Consulting",

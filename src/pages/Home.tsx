@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target } from "lucide-react";
+import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Mic, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Home = () => {
@@ -73,6 +74,103 @@ const Home = () => {
             <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white/20">
               <Link to="/about">Learn More</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Digital Assistant - Featured Section */}
+      <section className="py-24 bg-gradient-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge className="mb-4 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                Featured Service
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                AI Digital Assistant
+              </h2>
+              <p className="text-xl text-muted-foreground mb-6">
+                Never miss another customer. Your AI-powered virtual assistant handles emails, 
+                calls, and messages while you focus on running your business.
+              </p>
+              <p className="text-muted-foreground mb-8">
+                Designed for small businesses who can't afford to miss opportunities. Our Digital Assistant 
+                reads and responds to emails, takes notes from voice conversations, acts as a virtual receptionist, 
+                answers customer questions, and even makes outbound calls—all while keeping a human in the loop.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <span className="text-foreground">Email Management</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                    <Phone className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <span className="text-foreground">Virtual Receptionist</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                    <MessageSquare className="h-5 w-5 text-green-600" />
+                  </div>
+                  <span className="text-foreground">Website Chatbot</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
+                    <Mic className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <span className="text-foreground">Voice Transcription</span>
+                </div>
+              </div>
+
+              <Button asChild size="lg">
+                <Link to="/services">Learn More About Digital Assistants</Link>
+              </Button>
+            </div>
+
+            <div className="bg-white dark:bg-card rounded-2xl p-8 shadow-xl border border-border">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                  <Bot className="h-7 w-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-foreground">Your Digital Office Assistant</h3>
+                  <p className="text-muted-foreground">Always on. Always professional.</p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Reads, prioritizes, and drafts responses to incoming emails</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Answers calls and captures leads 24/7—nights, weekends, holidays</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Provides instant answers on your website via intelligent chatbot</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Makes outbound calls for appointment confirmations and follow-ups</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-muted-foreground">Transcribes voice conversations into searchable notes</p>
+                </div>
+              </div>
+
+              <div className="mt-8 p-4 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground italic">
+                  "If this system helps capture just one additional job per month, it more than pays for itself."
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
