@@ -40,85 +40,142 @@ interface RequestBody {
   messages: ChatMessage[];
 }
 
-// Azure AI Foundry Agent Service uses the /agents/responses endpoint
-// Endpoint format: https://<host>.services.ai.azure.com/api/projects/<project>/agents/responses
-async function callFoundryAgent(userInput: string, conversationHistory: ChatMessage[]): Promise<string> {
-  // Build the full URL for the agents/responses endpoint
-  // AZURE_AGENT_ENDPOINT should be: https://foundry-mrtek-dev.services.ai.azure.com/api/projects/MRTek-CAT-Dev
-  const url = `${AZURE_AGENT_ENDPOINT}/agents/responses?api-version=2025-05-01-preview`;
-  
-  console.log(`Azure Foundry API call: POST ${url}`);
-  console.log(`Using API key (first 10 chars): ${AZURE_AGENT_API_KEY?.substring(0, 10)}...`);
-  console.log(`Using Agent ID: ${AZURE_AGENT_ID}`);
+// Azure AI Foundry Agent Service - OpenAI-compatible Assistants API
+// Uses the threads/runs pattern with api-key authentication
+const API_VERSION = "2024-05-01-preview";
 
-  // Build conversation context for the input
-  let contextualInput = userInput;
+async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
+  // AZURE_AGENT_ENDPOINT: https://foundry-mrtek-dev.services.ai.azure.com/api/projects/MRTek-CAT-Dev
+  const url = `${AZURE_AGENT_ENDPOINT}${path}`;
+  console.log(`Azure API call: ${method} ${url}`);
   
-  // If there's conversation history, include it for context
-  if (conversationHistory.length > 1) {
-    const historyContext = conversationHistory
-      .slice(-6) // Last 6 messages for context
-      .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
-      .join('\n');
-    contextualInput = `Previous conversation:\n${historyContext}\n\nCurrent question: ${userInput}`;
-  }
-
-  // Request body for Azure AI Foundry Agent Service
-  // Using the correct format for agent invocation
-  const requestBody = {
-    input: contextualInput,
-    agent: {
-      type: "agent_reference",
-      name: AZURE_AGENT_ID,
-      version: "1" // Default version
-    },
-    background: false, // Synchronous call
-    store: true // Store conversation
+  const headers: Record<string, string> = {
+    "api-key": AZURE_AGENT_API_KEY!,
+    "Content-Type": "application/json",
   };
 
-  console.log("Request body:", JSON.stringify(requestBody, null, 2));
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${AZURE_AGENT_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(requestBody),
+  return await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
   });
+}
 
+// Create a new thread
+async function createThread(): Promise<string> {
+  const response = await azureApiCall(`/threads?api-version=${API_VERSION}`, "POST", {});
+  
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Foundry API error:", response.status, errorText);
-    throw new Error(`Foundry API error: ${response.status} - ${errorText}`);
+    console.error("Failed to create thread:", response.status, errorText);
+    throw new Error(`Failed to create thread: ${response.status} - ${errorText}`);
   }
-
-  const data = await response.json();
-  console.log("Foundry response:", JSON.stringify(data, null, 2));
-
-  // Extract the response text from the Foundry response
-  // The response format may vary, so we'll handle multiple possible structures
-  let responseText = "";
   
-  if (typeof data.output === "string") {
-    responseText = data.output;
-  } else if (data.output?.text) {
-    responseText = data.output.text;
-  } else if (data.output?.content) {
-    responseText = data.output.content;
-  } else if (data.response) {
-    responseText = typeof data.response === "string" ? data.response : JSON.stringify(data.response);
-  } else if (data.result) {
-    responseText = typeof data.result === "string" ? data.result : JSON.stringify(data.result);
-  } else if (data.message) {
-    responseText = data.message;
-  } else {
-    // Log the full response for debugging
-    console.log("Unexpected response format, full data:", data);
-    responseText = "I received a response but couldn't parse it. Please try again.";
-  }
+  const data = await response.json();
+  console.log("Thread created:", data.id);
+  return data.id;
+}
 
-  return responseText;
+// Add a message to a thread
+async function addMessage(threadId: string, content: string, role: string = "user"): Promise<void> {
+  const response = await azureApiCall(
+    `/threads/${threadId}/messages?api-version=${API_VERSION}`,
+    "POST",
+    { role, content }
+  );
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Failed to add message:", response.status, errorText);
+    throw new Error(`Failed to add message: ${response.status}`);
+  }
+  
+  console.log("Message added to thread");
+}
+
+// Create a run and wait for completion
+async function createAndWaitForRun(threadId: string): Promise<string> {
+  // Create the run
+  const runResponse = await azureApiCall(
+    `/threads/${threadId}/runs?api-version=${API_VERSION}`,
+    "POST",
+    { assistant_id: AZURE_AGENT_ID }
+  );
+  
+  if (!runResponse.ok) {
+    const errorText = await runResponse.text();
+    console.error("Failed to create run:", runResponse.status, errorText);
+    throw new Error(`Failed to create run: ${runResponse.status}`);
+  }
+  
+  const runData = await runResponse.json();
+  const runId = runData.id;
+  console.log("Run created:", runId, "Status:", runData.status);
+  
+  // Poll for completion (max 60 seconds)
+  const maxAttempts = 60;
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    const statusResponse = await azureApiCall(
+      `/threads/${threadId}/runs/${runId}?api-version=${API_VERSION}`,
+      "GET"
+    );
+    
+    if (!statusResponse.ok) {
+      const errorText = await statusResponse.text();
+      console.error("Failed to check run status:", statusResponse.status, errorText);
+      throw new Error(`Failed to check run status: ${statusResponse.status}`);
+    }
+    
+    const statusData = await statusResponse.json();
+    console.log("Run status:", statusData.status);
+    
+    if (statusData.status === "completed") {
+      break;
+    } else if (statusData.status === "failed" || statusData.status === "cancelled" || statusData.status === "expired") {
+      console.error("Run failed with status:", statusData.status, statusData.last_error);
+      throw new Error(`Run failed: ${statusData.status} - ${statusData.last_error?.message || 'Unknown error'}`);
+    }
+    
+    // Wait 1 second before polling again
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    attempts++;
+  }
+  
+  if (attempts >= maxAttempts) {
+    throw new Error("Run timed out after 60 seconds");
+  }
+  
+  // Get the latest messages
+  const messagesResponse = await azureApiCall(
+    `/threads/${threadId}/messages?api-version=${API_VERSION}&limit=1&order=desc`,
+    "GET"
+  );
+  
+  if (!messagesResponse.ok) {
+    const errorText = await messagesResponse.text();
+    console.error("Failed to get messages:", messagesResponse.status, errorText);
+    throw new Error(`Failed to get messages: ${messagesResponse.status}`);
+  }
+  
+  const messagesData = await messagesResponse.json();
+  
+  // Extract the assistant's response
+  const assistantMessage = messagesData.data?.[0];
+  if (!assistantMessage || assistantMessage.role !== "assistant") {
+    console.error("No assistant message found in response");
+    throw new Error("No assistant response found");
+  }
+  
+  // Extract text content
+  const textContent = assistantMessage.content?.find((c: any) => c.type === "text");
+  if (!textContent?.text?.value) {
+    console.error("No text content in assistant message");
+    throw new Error("No text content in response");
+  }
+  
+  return textContent.text.value;
 }
 
 serve(async (req: Request) => {
@@ -176,14 +233,21 @@ serve(async (req: Request) => {
     // Sanitize input
     const sanitizedContent = latestUserMessage.content.substring(0, 2000).trim();
 
-    // Call the Foundry Agent
-    const assistantResponse = await callFoundryAgent(sanitizedContent, messages);
+    // Create a new thread
+    const threadId = await createThread();
+    
+    // Add the user's message
+    await addMessage(threadId, sanitizedContent, "user");
+    
+    // Run the assistant and get response
+    const assistantResponse = await createAndWaitForRun(threadId);
 
-    console.log("Foundry Agent response received, length:", assistantResponse.length);
+    console.log("Azure Agent response received, length:", assistantResponse.length);
 
     return new Response(
       JSON.stringify({ 
-        response: assistantResponse
+        response: assistantResponse,
+        threadId: threadId
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
