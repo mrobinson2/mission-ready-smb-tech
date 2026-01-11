@@ -42,20 +42,14 @@ interface RequestBody {
 }
 
 // Helper to make Azure API calls with proper headers
-// Azure AI Foundry Agent Service endpoint format
+// Azure AI Foundry Agent Service endpoint format:
+// The endpoint should be the full project URL: https://<region>.services.ai.azure.com/api/projects/<project-id>
+// API version should be v1
 async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
-  // The endpoint should be the base URL only (e.g., https://foundry-mrtek-dev.services.ai.azure.com)
-  // Remove any trailing /api/projects/... path if present
-  let baseUrl = AZURE_AGENT_ENDPOINT!;
-  
-  // Strip /api/projects/... suffix if present in endpoint
-  const projectPathMatch = baseUrl.match(/^(https:\/\/[^\/]+)/);
-  if (projectPathMatch) {
-    baseUrl = projectPathMatch[1];
-  }
-  
-  // For Azure AI Foundry Agent Service, use the /agents/v1.0 path
-  const url = `${baseUrl}/agents/v1.0${path}`;
+  // Use the full endpoint as-is - it should include /api/projects/{project}
+  // Path is appended directly (e.g., /threads, /threads/{id}/messages)
+  // API version is v1 for Azure AI Foundry Agent Service
+  const url = `${AZURE_AGENT_ENDPOINT}${path}`;
   console.log(`Azure API call: ${method} ${url}`);
   console.log(`Using API key (first 10 chars): ${AZURE_AGENT_API_KEY?.substring(0, 10)}...`);
   
@@ -75,7 +69,7 @@ async function azureApiCall(path: string, method: string, body?: unknown): Promi
 
 // Create a new thread
 async function createThread(): Promise<string> {
-  const response = await azureApiCall("/threads?api-version=2024-12-01-preview", "POST", {});
+  const response = await azureApiCall("/threads?api-version=v1", "POST", {});
   
   if (!response.ok) {
     const errorText = await response.text();
@@ -91,7 +85,7 @@ async function createThread(): Promise<string> {
 // Add a message to a thread
 async function addMessage(threadId: string, content: string, role: string = "user"): Promise<void> {
   const response = await azureApiCall(
-    `/threads/${threadId}/messages?api-version=2024-12-01-preview`,
+    `/threads/${threadId}/messages?api-version=v1`,
     "POST",
     { role, content }
   );
@@ -109,7 +103,7 @@ async function addMessage(threadId: string, content: string, role: string = "use
 async function createAndWaitForRun(threadId: string): Promise<string> {
   // Create the run
   const runResponse = await azureApiCall(
-    `/threads/${threadId}/runs?api-version=2024-12-01-preview`,
+    `/threads/${threadId}/runs?api-version=v1`,
     "POST",
     { assistant_id: AZURE_AGENT_ID }
   );
@@ -130,7 +124,7 @@ async function createAndWaitForRun(threadId: string): Promise<string> {
   
   while (attempts < maxAttempts) {
     const statusResponse = await azureApiCall(
-      `/threads/${threadId}/runs/${runId}?api-version=2024-12-01-preview`,
+      `/threads/${threadId}/runs/${runId}?api-version=v1`,
       "GET"
     );
     
@@ -161,7 +155,7 @@ async function createAndWaitForRun(threadId: string): Promise<string> {
   
   // Get the latest messages
   const messagesResponse = await azureApiCall(
-    `/threads/${threadId}/messages?api-version=2024-12-01-preview&limit=1&order=desc`,
+    `/threads/${threadId}/messages?api-version=v1&limit=1&order=desc`,
     "GET"
   );
   
