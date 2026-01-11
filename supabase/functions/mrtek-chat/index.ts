@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const AZURE_AGENT_ENDPOINT = Deno.env.get("AZURE_AGENT_ENDPOINT");
+const AZURE_AGENT_API_KEY = Deno.env.get("AZURE_AGENT_API_KEY");
+const AZURE_AGENT_ID = Deno.env.get("AZURE_AGENT_ID");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,82 +31,6 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-const SYSTEM_PROMPT = `You are the MRTek.ai Assistant, a helpful and knowledgeable virtual assistant for MRTek.ai, a technology consulting company that helps small and medium businesses leverage cloud, AI, and automation.
-
-## Your Personality
-- Friendly, professional, and down-to-earth
-- Speak in clear, practical terms—avoid unnecessary jargon
-- Be concise but thorough
-- Focus on business outcomes (time saved, customers served faster, fewer dropped balls)
-- Be reassuring about AI: emphasize human-in-the-loop control
-
-## Company Information
-- Company: MRTek.ai
-- Tagline: "Empowering Small & Medium Businesses with Cloud, AI, and Smart Technology Solutions"
-- Owner: Michael Robinson
-- Contact: michael@mrtek.ai | LinkedIn: linkedin.com/in/mrobinson2/
-- Response time: typically within 24 business hours
-
-## Services
-1. **AI Digital Assistant** - Your 24/7 Virtual Office Team
-   - Email triage and response drafting
-   - Customer support automation
-   - Lead qualification and follow-up
-   - Voice note transcription
-   - Virtual receptionist for calls
-   - Website chatbot integration
-   - Benefits: Free up owner time, respond faster to customers, consistent professional communication
-
-2. **Cloud Consulting** - Modern Infrastructure for Growing Businesses
-   - Cloud migration, optimization, security, cost management
-
-3. **AI Advisory** - Strategic Guidance for AI Adoption
-   - AI readiness assessment, use case identification, implementation roadmaps
-
-4. **Website & Automation** - Streamlined Digital Operations
-   - Website development, workflow automation, integrations
-
-5. **Fractional CTO** - Executive Technology Leadership
-   - Technology strategy, team guidance, vendor management
-
-## 4-Step Process
-1. **Discovery** - Understand your business, tools, pain points, and goals
-2. **Strategy** - Design pragmatic plan prioritizing quick wins
-3. **Implementation** - Configure and launch AI-powered workflows
-4. **Optimization** - Monitor, improve, expand based on real usage
-
-## Pricing Models
-- **Starter Packages**: Fixed-scope projects with clear deliverables
-- **Advisory Retainer**: Ongoing strategic guidance with regular check-ins
-- **Project-Based**: Custom implementations scoped to specific needs
-
-## 90-Day Quick Start
-Most businesses see meaningful results within 90 days:
-- Week 1-2: Discovery and quick assessment
-- Week 3-4: Strategy and tool selection
-- Week 5-8: Core implementation and testing
-- Week 9-12: Launch, training, and optimization
-
-## Human-in-the-Loop Philosophy
-AI works best when humans stay in control. Every system keeps you informed and in charge—AI handles repetitive work while you make important decisions.
-
-## Guidelines
-1. Highlight practical benefits for small business owners
-2. Emphasize owners maintain control—AI handles repetitive work
-3. For pricing, describe models but encourage sharing context for tailored estimates
-4. When users want to start a project, get pricing details, or request consultation, offer to connect with Michael (michael@mrtek.ai or LinkedIn)
-5. Keep responses to 2-3 paragraphs max unless they ask for detail
-6. Use bullet points for lists
-
-## Handoff to Human
-When user wants specific pricing, is ready to start, or requests consultation:
-"I'd love to help you take the next step! The best way to get started is to reach out to Michael Robinson directly at michael@mrtek.ai or connect on LinkedIn. He typically responds within 24 business hours and can discuss your specific situation."
-
-## Important
-- Never make up specific prices or timelines
-- If unsure, encourage reaching out for specifics
-- Don't claim capabilities not listed`;
-
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -113,6 +38,143 @@ interface ChatMessage {
 
 interface RequestBody {
   messages: ChatMessage[];
+  threadId?: string;
+}
+
+// Helper to make Azure API calls with proper headers
+async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
+  const url = `${AZURE_AGENT_ENDPOINT}${path}`;
+  console.log(`Azure API call: ${method} ${url}`);
+  
+  const headers: Record<string, string> = {
+    "api-key": AZURE_AGENT_API_KEY!,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  return response;
+}
+
+// Create a new thread
+async function createThread(): Promise<string> {
+  const response = await azureApiCall("/threads?api-version=2024-12-01-preview", "POST", {});
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Failed to create thread:", response.status, errorText);
+    throw new Error(`Failed to create thread: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  console.log("Thread created:", data.id);
+  return data.id;
+}
+
+// Add a message to a thread
+async function addMessage(threadId: string, content: string, role: string = "user"): Promise<void> {
+  const response = await azureApiCall(
+    `/threads/${threadId}/messages?api-version=2024-12-01-preview`,
+    "POST",
+    { role, content }
+  );
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Failed to add message:", response.status, errorText);
+    throw new Error(`Failed to add message: ${response.status}`);
+  }
+  
+  console.log("Message added to thread");
+}
+
+// Create a run and wait for completion
+async function createAndWaitForRun(threadId: string): Promise<string> {
+  // Create the run
+  const runResponse = await azureApiCall(
+    `/threads/${threadId}/runs?api-version=2024-12-01-preview`,
+    "POST",
+    { assistant_id: AZURE_AGENT_ID }
+  );
+  
+  if (!runResponse.ok) {
+    const errorText = await runResponse.text();
+    console.error("Failed to create run:", runResponse.status, errorText);
+    throw new Error(`Failed to create run: ${runResponse.status}`);
+  }
+  
+  const runData = await runResponse.json();
+  const runId = runData.id;
+  console.log("Run created:", runId, "Status:", runData.status);
+  
+  // Poll for completion (max 60 seconds)
+  const maxAttempts = 60;
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    const statusResponse = await azureApiCall(
+      `/threads/${threadId}/runs/${runId}?api-version=2024-12-01-preview`,
+      "GET"
+    );
+    
+    if (!statusResponse.ok) {
+      const errorText = await statusResponse.text();
+      console.error("Failed to check run status:", statusResponse.status, errorText);
+      throw new Error(`Failed to check run status: ${statusResponse.status}`);
+    }
+    
+    const statusData = await statusResponse.json();
+    console.log("Run status:", statusData.status);
+    
+    if (statusData.status === "completed") {
+      break;
+    } else if (statusData.status === "failed" || statusData.status === "cancelled" || statusData.status === "expired") {
+      console.error("Run failed with status:", statusData.status, statusData.last_error);
+      throw new Error(`Run failed: ${statusData.status} - ${statusData.last_error?.message || 'Unknown error'}`);
+    }
+    
+    // Wait 1 second before polling again
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    attempts++;
+  }
+  
+  if (attempts >= maxAttempts) {
+    throw new Error("Run timed out after 60 seconds");
+  }
+  
+  // Get the latest messages
+  const messagesResponse = await azureApiCall(
+    `/threads/${threadId}/messages?api-version=2024-12-01-preview&limit=1&order=desc`,
+    "GET"
+  );
+  
+  if (!messagesResponse.ok) {
+    const errorText = await messagesResponse.text();
+    console.error("Failed to get messages:", messagesResponse.status, errorText);
+    throw new Error(`Failed to get messages: ${messagesResponse.status}`);
+  }
+  
+  const messagesData = await messagesResponse.json();
+  
+  // Extract the assistant's response
+  const assistantMessage = messagesData.data?.[0];
+  if (!assistantMessage || assistantMessage.role !== "assistant") {
+    console.error("No assistant message found in response");
+    throw new Error("No assistant response found");
+  }
+  
+  // Extract text content
+  const textContent = assistantMessage.content?.find((c: any) => c.type === "text");
+  if (!textContent?.text?.value) {
+    console.error("No text content in assistant message");
+    throw new Error("No text content in response");
+  }
+  
+  return textContent.text.value;
 }
 
 serve(async (req: Request) => {
@@ -136,15 +198,15 @@ serve(async (req: Request) => {
       );
     }
 
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY not configured");
+    if (!AZURE_AGENT_ENDPOINT || !AZURE_AGENT_API_KEY || !AZURE_AGENT_ID) {
+      console.error("Azure Agent credentials not configured");
       return new Response(
         JSON.stringify({ error: "Service temporarily unavailable" }),
         { status: 503, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const { messages }: RequestBody = await req.json();
+    const { messages, threadId: existingThreadId }: RequestBody = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
@@ -153,52 +215,49 @@ serve(async (req: Request) => {
       );
     }
 
-    // Validate and sanitize messages
-    const sanitizedMessages = messages
-      .slice(-20) // Keep last 20 messages for context
-      .map((m) => ({
-        role: m.role === 'user' ? 'user' : 'assistant',
-        content: typeof m.content === 'string' ? m.content.substring(0, 2000) : '',
-      }))
-      .filter((m) => m.content.length > 0);
-
-    // Build conversation with system prompt
-    const conversationMessages: ChatMessage[] = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...sanitizedMessages,
-    ];
-
-    const aiResponse = await fetch(AI_GATEWAY_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: conversationMessages,
-        max_tokens: 1000,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error("AI Gateway error:", errorText);
+    // Get the latest user message
+    const userMessages = messages.filter(m => m.role === 'user');
+    const latestUserMessage = userMessages[userMessages.length - 1];
+    
+    if (!latestUserMessage || !latestUserMessage.content) {
       return new Response(
-        JSON.stringify({ 
-          response: "I'm having trouble right now. Please try again or reach out to michael@mrtek.ai for immediate assistance." 
-        }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: "No user message provided" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const aiData = await aiResponse.json();
-    const responseContent = aiData.choices?.[0]?.message?.content || 
-      "I couldn't generate a response. Please try rephrasing your question or contact michael@mrtek.ai.";
+    // Sanitize input
+    const sanitizedContent = latestUserMessage.content.substring(0, 2000).trim();
+
+    // Create a new thread for each conversation turn
+    // (For better conversation continuity, you could persist threadId on the client)
+    const threadId = await createThread();
+    
+    // Add previous conversation context if available
+    const recentMessages = messages.slice(-10); // Keep last 10 messages for context
+    for (const msg of recentMessages) {
+      if (msg.role === 'user' || msg.role === 'assistant') {
+        await addMessage(threadId, msg.content.substring(0, 2000), msg.role);
+      }
+    }
+    
+    // If the last message wasn't already added as part of context, add it
+    // (Skip if it's already the last one we just added)
+    const lastContextMessage = recentMessages[recentMessages.length - 1];
+    if (!lastContextMessage || lastContextMessage.content !== sanitizedContent) {
+      await addMessage(threadId, sanitizedContent, "user");
+    }
+    
+    // Run the assistant and get response
+    const assistantResponse = await createAndWaitForRun(threadId);
+
+    console.log("Azure Agent response received, length:", assistantResponse.length);
 
     return new Response(
-      JSON.stringify({ response: responseContent }),
+      JSON.stringify({ 
+        response: assistantResponse,
+        threadId: threadId // Return threadId for potential conversation continuity
+      }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
 
@@ -206,7 +265,7 @@ serve(async (req: Request) => {
     console.error("Chat function error:", error);
     return new Response(
       JSON.stringify({ 
-        response: "Something went wrong. Please try again or contact michael@mrtek.ai for help." 
+        response: "I'm having trouble connecting right now. Please try again or reach out to michael@mrtek.ai for immediate assistance." 
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
