@@ -42,10 +42,20 @@ interface RequestBody {
 }
 
 // Helper to make Azure API calls with proper headers
-// Azure AI Foundry Agent Service uses the /openai/ prefix for Assistants API
+// Azure AI Foundry Agent Service endpoint format
 async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
-  // Try with /openai prefix for Azure AI Foundry
-  const url = `${AZURE_AGENT_ENDPOINT}/openai${path}`;
+  // The endpoint should be the base URL only (e.g., https://foundry-mrtek-dev.services.ai.azure.com)
+  // Remove any trailing /api/projects/... path if present
+  let baseUrl = AZURE_AGENT_ENDPOINT!;
+  
+  // Strip /api/projects/... suffix if present in endpoint
+  const projectPathMatch = baseUrl.match(/^(https:\/\/[^\/]+)/);
+  if (projectPathMatch) {
+    baseUrl = projectPathMatch[1];
+  }
+  
+  // For Azure AI Foundry Agent Service, use the /agents/v1.0 path
+  const url = `${baseUrl}/agents/v1.0${path}`;
   console.log(`Azure API call: ${method} ${url}`);
   console.log(`Using API key (first 10 chars): ${AZURE_AGENT_API_KEY?.substring(0, 10)}...`);
   
