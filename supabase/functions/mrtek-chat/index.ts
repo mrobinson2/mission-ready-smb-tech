@@ -8,10 +8,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Rate limiting setup
+// Rate limiting setup - General messages (FAQ + AI)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT = 20;
-const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+// Rate limiting setup - AI calls only (separate, stricter limit)
+const aiRateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const AI_RATE_LIMIT = 5; // Max 5 AI calls per IP per hour
+const AI_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -28,6 +33,23 @@ function checkRateLimit(ip: string): boolean {
   
   entry.count++;
   return true;
+}
+
+function checkAIRateLimit(ip: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const entry = aiRateLimitStore.get(ip);
+  
+  if (!entry || now > entry.resetTime) {
+    aiRateLimitStore.set(ip, { count: 1, resetTime: now + AI_RATE_WINDOW_MS });
+    return { allowed: true, remaining: AI_RATE_LIMIT - 1 };
+  }
+  
+  if (entry.count >= AI_RATE_LIMIT) {
+    return { allowed: false, remaining: 0 };
+  }
+  
+  entry.count++;
+  return { allowed: true, remaining: AI_RATE_LIMIT - entry.count };
 }
 
 interface ChatMessage {
@@ -54,19 +76,19 @@ const SCRIPTED_FAQS: FAQEntry[] = [
     patterns: ["what services", "services do you offer", "what do you offer", "your services"],
     response: `MRTek.ai offers a range of services designed to help small and medium businesses leverage technology effectively:
 
-• **AI Digital Assistant** – Your 24/7 virtual office team for email triage, customer support automation, lead qualification, and more.
-• **Cloud Consulting** – Cloud migration, infrastructure optimization, security setup, and cost management.
-• **AI Advisory** – Strategic guidance for AI adoption including readiness assessments and implementation roadmaps.
-• **Website & Automation** – Website development, workflow automation, and tool integrations.
-• **Fractional CTO** – Executive-level technology leadership without full-time overhead.
+• AI Digital Assistant – Your 24/7 virtual office team for email triage, customer support automation, lead qualification, and more.
+• Cloud Consulting – Cloud migration, infrastructure optimization, security setup, and cost management.
+• AI Advisory – Strategic guidance for AI adoption including readiness assessments and implementation roadmaps.
+• Website & Automation – Website development, workflow automation, and tool integrations.
+• Fractional CTO – Executive-level technology leadership without full-time overhead.
 
 Would you like to learn more about any specific service?`
   },
   {
     patterns: ["ai digital assistant", "tell me about the ai", "digital assistant service", "virtual assistant", "ai assistant service"],
-    response: `The **AI Digital Assistant** is MRTek.ai's flagship service—think of it as your 24/7 Virtual Office Team.
+    response: `The AI Digital Assistant is MRTek.ai's flagship service—think of it as your 24/7 Virtual Office Team.
 
-**What it does:**
+What it does:
 • Email triage and response drafting
 • Customer support automation
 • Lead qualification and follow-up
@@ -74,9 +96,9 @@ Would you like to learn more about any specific service?`
 • Virtual receptionist for calls
 • Website chatbot integration
 
-**Who it's for:** Small business owners who are stretched thin and need help handling repetitive communication tasks without hiring additional staff.
+Who it's for: Small business owners who are stretched thin and need help handling repetitive communication tasks without hiring additional staff.
 
-**Key benefits:** Free up your time, respond faster to customers, and create consistent, professional communication—all while you maintain control. Our human-in-the-loop approach means AI handles the repetitive work while you make the important decisions.
+Key benefits: Free up your time, respond faster to customers, and create consistent, professional communication—all while you maintain control. Our human-in-the-loop approach means AI handles the repetitive work while you make the important decisions.
 
 Ready to explore how this could work for your business? Reach out to Michael at michael@mrtek.ai!`
   },
@@ -84,16 +106,16 @@ Ready to explore how this could work for your business? Reach out to Michael at 
     patterns: ["90 days", "get started", "how do i start", "getting started", "next steps", "90-day", "ninety day"],
     response: `Great question! Most small businesses can see meaningful AI and automation results within 90 days. Here's our approach:
 
-**Week 1-2: Discovery**
+Week 1-2: Discovery
 Understand your business, current tools, pain points, and goals. We learn how you work so we can recommend solutions that actually fit.
 
-**Week 3-4: Strategy**
+Week 3-4: Strategy
 Design a pragmatic plan for cloud, AI, and automation. We prioritize quick wins while planning for sustainable growth.
 
-**Week 5-8: Implementation**
+Week 5-8: Implementation
 Configure, integrate, and launch AI-powered workflows and assistants. We handle the technical work while keeping you in control.
 
-**Week 9-12: Optimization**
+Week 9-12: Optimization
 Monitor, improve, and expand based on real usage and metrics. Continuous improvement, not set-and-forget.
 
 Want to kick off your 90-day plan? Email Michael at michael@mrtek.ai to schedule a discovery call!`
@@ -102,11 +124,11 @@ Want to kick off your 90-day plan? Email Michael at michael@mrtek.ai to schedule
     patterns: ["how much", "pricing", "cost", "price", "what does it cost", "how much does"],
     response: `MRTek.ai offers flexible pricing models to fit different needs:
 
-• **Starter Packages** – Fixed-scope projects with clear deliverables. Great for specific implementations like setting up an AI assistant or automating a workflow.
+• Starter Packages – Fixed-scope projects with clear deliverables. Great for specific implementations like setting up an AI assistant or automating a workflow.
 
-• **Advisory Retainer** – Monthly ongoing support with regular check-ins. Ideal for consistent access to tech expertise without a full-time commitment.
+• Advisory Retainer – Monthly ongoing support with regular check-ins. Ideal for consistent access to tech expertise without a full-time commitment.
 
-• **Project-Based** – Custom implementations scoped to your specific needs for larger transformations or complex integrations.
+• Project-Based – Custom implementations scoped to your specific needs for larger transformations or complex integrations.
 
 Pricing depends on your specific situation, scope, and goals. The best way to get a tailored estimate is to share a bit about your business and what you're looking to accomplish.
 
@@ -258,8 +280,22 @@ serve(async (req: Request) => {
     }
 
     // ============================================
-    // STEP 2: No FAQ match - call Azure Function App
+    // STEP 2: No FAQ match - check AI rate limit before calling Azure
     // ============================================
+    const aiRateCheck = checkAIRateLimit(clientIP);
+    
+    if (!aiRateCheck.allowed) {
+      console.log(`AI rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ 
+          response: "I've reached my limit for detailed responses right now. For more help, please reach out directly to Michael at michael@mrtek.ai—he typically responds within 24 business hours!",
+          threadId: existingThreadId || null
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log(`AI rate limit check passed. Remaining AI calls for this IP: ${aiRateCheck.remaining}`);
     console.log("No FAQ match, calling Azure Function App proxy");
     
     const result = await callAzureProxy(messages, existingThreadId);
