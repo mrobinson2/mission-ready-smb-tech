@@ -155,7 +155,7 @@ export const STARTER_QUESTIONS = [
   }
 ];
 
-export const WELCOME_MESSAGE = `Hi there! I'm the MRTek.ai assistant—here to give you straightforward answers about how we help small and medium businesses with customer communications, simple automations, cloud setups, and AI tools.
+export const WELCOME_MESSAGE = `Hi there! I'm the MRTek.ai assistant—here to give you straightforward answers about how we help businesses with technology solutions.
 
 I can explain what the Digital Assistant does, how things usually get started, typical costs, or anything else on your mind. Just ask or pick a question below—no pressure.
 
