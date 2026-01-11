@@ -1,8 +1,15 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
+// Environment variables for Azure AI Foundry Agent
+// AZURE_AGENT_ENDPOINT: https://foundry-mrtek-dev.services.ai.azure.com
+// AZURE_AGENT_API_KEY: API key from AI Foundry Keys & Endpoints
+// AZURE_AGENT_ID: asst_T9cDMyihETMusZrgWtZ120XU
 const AZURE_AGENT_ENDPOINT = Deno.env.get("AZURE_AGENT_ENDPOINT");
 const AZURE_AGENT_API_KEY = Deno.env.get("AZURE_AGENT_API_KEY");
 const AZURE_AGENT_ID = Deno.env.get("AZURE_AGENT_ID");
+
+// Project name - extracted from your endpoint
+const PROJECT_NAME = "MRTek-CAT-Dev";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,28 +47,51 @@ interface RequestBody {
   messages: ChatMessage[];
 }
 
-// Azure AI Foundry Agent Service - OpenAI-compatible Assistants API
-// Uses the threads/runs pattern with api-key authentication
-const API_VERSION = "2024-05-01-preview";
+// Azure AI Foundry Agent REST API
+// Per https://learn.microsoft.com/en-us/rest/api/aifoundry/aiagents/
+// Base URL pattern: {endpoint}/api/projects/{projectName}/agents/...
+const API_VERSION = "2024-12-01-preview";
+
+// Helper to build the correct Azure AI Foundry Agent URL
+function buildAgentUrl(path: string): string {
+  // Ensure endpoint doesn't have trailing slash or /api/projects already
+  let baseEndpoint = AZURE_AGENT_ENDPOINT!;
+  
+  // Remove trailing slash if present
+  if (baseEndpoint.endsWith('/')) {
+    baseEndpoint = baseEndpoint.slice(0, -1);
+  }
+  
+  // Remove /api/projects/... if already in the endpoint (to avoid duplication)
+  if (baseEndpoint.includes('/api/projects/')) {
+    baseEndpoint = baseEndpoint.split('/api/projects/')[0];
+  }
+  
+  const url = `${baseEndpoint}/api/projects/${PROJECT_NAME}${path}`;
+  return url;
+}
 
 async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
-  // AZURE_AGENT_ENDPOINT: https://foundry-mrtek-dev.services.ai.azure.com/api/projects/MRTek-CAT-Dev
-  const url = `${AZURE_AGENT_ENDPOINT}${path}`;
+  const url = buildAgentUrl(path);
   console.log(`Azure API call: ${method} ${url}`);
   
+  // Azure AI Foundry uses "api-key" header for authentication
   const headers: Record<string, string> = {
     "api-key": AZURE_AGENT_API_KEY!,
     "Content-Type": "application/json",
   };
 
-  return await fetch(url, {
+  const response = await fetch(url, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
+  
+  console.log(`Response status: ${response.status}`);
+  return response;
 }
 
-// Create a new thread
+// Create a new thread for conversation
 async function createThread(): Promise<string> {
   const response = await azureApiCall(`/threads?api-version=${API_VERSION}`, "POST", {});
   
@@ -93,9 +123,9 @@ async function addMessage(threadId: string, content: string, role: string = "use
   console.log("Message added to thread");
 }
 
-// Create a run and wait for completion
+// Create a run with the assistant and wait for completion
 async function createAndWaitForRun(threadId: string): Promise<string> {
-  // Create the run
+  // Create the run with the assistant
   const runResponse = await azureApiCall(
     `/threads/${threadId}/runs?api-version=${API_VERSION}`,
     "POST",
@@ -147,7 +177,7 @@ async function createAndWaitForRun(threadId: string): Promise<string> {
     throw new Error("Run timed out after 60 seconds");
   }
   
-  // Get the latest messages
+  // Get the latest messages from the thread
   const messagesResponse = await azureApiCall(
     `/threads/${threadId}/messages?api-version=${API_VERSION}&limit=1&order=desc`,
     "GET"
@@ -168,7 +198,7 @@ async function createAndWaitForRun(threadId: string): Promise<string> {
     throw new Error("No assistant response found");
   }
   
-  // Extract text content
+  // Extract text content from the response
   const textContent = assistantMessage.content?.find((c: any) => c.type === "text");
   if (!textContent?.text?.value) {
     console.error("No text content in assistant message");
