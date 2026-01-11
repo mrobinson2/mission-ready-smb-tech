@@ -1,25 +1,20 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-// Environment variables for Azure AI Foundry Agent
-// AZURE_AGENT_ENDPOINT: https://foundry-mrtek-dev.services.ai.azure.com
-// AZURE_AGENT_API_KEY: API key from AI Foundry Keys & Endpoints
-// AZURE_AGENT_ID: asst_T9cDMyihETMusZrgWtZ120XU
-const AZURE_AGENT_ENDPOINT = Deno.env.get("AZURE_AGENT_ENDPOINT");
-const AZURE_AGENT_API_KEY = Deno.env.get("AZURE_AGENT_API_KEY");
-const AZURE_AGENT_ID = Deno.env.get("AZURE_AGENT_ID");
-
-// Project name - extracted from your endpoint
-const PROJECT_NAME = "MRTek-CAT-Dev";
+// Environment variables
+const AZURE_AGENT_ENDPOINT = Deno.env.get("AZURE_AGENT_ENDPOINT"); // e.g., https://foundry-mrtek-dev.services.ai.azure.com/api/projects/MRTek-CAT-Dev
+const AZURE_AGENT_API_KEY = Deno.env.get("AZURE_AGENT_API_KEY");   // Foundry API key from Keys & Endpoints
+const AZURE_AGENT_ID = Deno.env.get("AZURE_AGENT_ID");             // e.g., asst_T9cDMyihETMusZrgWtZ120XU
+const API_VERSION = "2025-11-15-preview";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Rate limiting: simple in-memory store (resets on function cold start)
+// Rate limiting setup
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 20; // requests per window
-const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -45,167 +40,96 @@ interface ChatMessage {
 
 interface RequestBody {
   messages: ChatMessage[];
+  conversationId?: string;
 }
 
-// Azure AI Foundry Agent REST API
-// Per https://learn.microsoft.com/en-us/rest/api/aifoundry/aiagents/
-// Base URL pattern: {endpoint}/api/projects/{projectName}/agents/...
-const API_VERSION = "2024-12-01-preview";
-
-// Helper to build the correct Azure AI Foundry Agent URL
-function buildAgentUrl(path: string): string {
-  // Ensure endpoint doesn't have trailing slash or /api/projects already
-  let baseEndpoint = AZURE_AGENT_ENDPOINT!;
-  
-  // Remove trailing slash if present
-  if (baseEndpoint.endsWith('/')) {
-    baseEndpoint = baseEndpoint.slice(0, -1);
+async function callAzureAgent(message: string, conversationId?: string): Promise<{ reply: string; conversationId?: string }> {
+  // Validate required environment variables
+  if (!AZURE_AGENT_ENDPOINT) {
+    throw new Error("AZURE_AGENT_ENDPOINT environment variable is not set");
   }
-  
-  // Remove /api/projects/... if already in the endpoint (to avoid duplication)
-  if (baseEndpoint.includes('/api/projects/')) {
-    baseEndpoint = baseEndpoint.split('/api/projects/')[0];
+  if (!AZURE_AGENT_API_KEY) {
+    throw new Error("AZURE_AGENT_API_KEY environment variable is not set");
   }
-  
-  const url = `${baseEndpoint}/api/projects/${PROJECT_NAME}${path}`;
-  return url;
-}
+  if (!AZURE_AGENT_ID) {
+    throw new Error("AZURE_AGENT_ID environment variable is not set");
+  }
 
-async function azureApiCall(path: string, method: string, body?: unknown): Promise<Response> {
-  const url = buildAgentUrl(path);
-  console.log(`Azure API call: ${method} ${url}`);
-  
-  // Azure AI Foundry uses "api-key" header for authentication
+  // Build the request URL - using /agents/responses endpoint
+  const url = `${AZURE_AGENT_ENDPOINT}/agents/responses?api-version=${API_VERSION}`;
+
+  // Set headers for Foundry authentication - try api-key header
   const headers: Record<string, string> = {
     "api-key": AZURE_AGENT_API_KEY!,
     "Content-Type": "application/json",
   };
 
+  // Request body for invoking the agent
+  const body: Record<string, any> = {
+    input: message,
+    agent: {
+      type: "agent_reference",
+      name: AZURE_AGENT_ID,
+      version: API_VERSION,
+    },
+    background: false,
+    store: true,
+  };
+
+  // Add conversation ID if provided (for multi-turn conversations)
+  if (conversationId) {
+    body.conversation_id = conversationId;
+  }
+
+  console.log(`Calling Azure Agent: ${url}`);
+  console.log(`Body: ${JSON.stringify(body)}`);
+
+  // Call Azure AI Foundry Agent
   const response = await fetch(url, {
-    method,
+    method: "POST",
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: JSON.stringify(body),
   });
-  
-  console.log(`Response status: ${response.status}`);
-  return response;
-}
 
-// Create a new thread for conversation
-async function createThread(): Promise<string> {
-  const response = await azureApiCall(`/threads?api-version=${API_VERSION}`, "POST", {});
-  
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Failed to create thread:", response.status, errorText);
-    throw new Error(`Failed to create thread: ${response.status} - ${errorText}`);
+    console.error("Failed to invoke agent:", response.status, errorText);
+    
+    // Provide more helpful error messages
+    if (response.status === 401) {
+      throw new Error("Authentication failed. Please check your AZURE_AGENT_API_KEY.");
+    } else if (response.status === 404) {
+      throw new Error("Agent not found. Please check AZURE_AGENT_ID and AZURE_AGENT_ENDPOINT.");
+    } else if (response.status === 429) {
+      throw new Error("Rate limit exceeded. Please try again later.");
+    } else {
+      throw new Error(`Azure AI Foundry API error: ${response.status} - ${errorText}`);
+    }
   }
-  
+
   const data = await response.json();
-  console.log("Thread created:", data.id);
-  return data.id;
-}
+  console.log("Response received:", JSON.stringify(data, null, 2));
 
-// Add a message to a thread
-async function addMessage(threadId: string, content: string, role: string = "user"): Promise<void> {
-  const response = await azureApiCall(
-    `/threads/${threadId}/messages?api-version=${API_VERSION}`,
-    "POST",
-    { role, content }
-  );
+  // Parse the chatbot response - handle multiple possible response formats
+  let chatbotReply = "No response text found";
   
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Failed to add message:", response.status, errorText);
-    throw new Error(`Failed to add message: ${response.status}`);
+  if (data.output_text) {
+    chatbotReply = data.output_text;
+  } else if (data.output && typeof data.output === 'string') {
+    chatbotReply = data.output;
+  } else if (data.choices && data.choices[0] && data.choices[0].message) {
+    chatbotReply = data.choices[0].message.content;
+  } else if (data.text) {
+    chatbotReply = data.text;
   }
-  
-  console.log("Message added to thread");
-}
 
-// Create a run with the assistant and wait for completion
-async function createAndWaitForRun(threadId: string): Promise<string> {
-  // Create the run with the assistant
-  const runResponse = await azureApiCall(
-    `/threads/${threadId}/runs?api-version=${API_VERSION}`,
-    "POST",
-    { assistant_id: AZURE_AGENT_ID }
-  );
-  
-  if (!runResponse.ok) {
-    const errorText = await runResponse.text();
-    console.error("Failed to create run:", runResponse.status, errorText);
-    throw new Error(`Failed to create run: ${runResponse.status}`);
-  }
-  
-  const runData = await runResponse.json();
-  const runId = runData.id;
-  console.log("Run created:", runId, "Status:", runData.status);
-  
-  // Poll for completion (max 60 seconds)
-  const maxAttempts = 60;
-  let attempts = 0;
-  
-  while (attempts < maxAttempts) {
-    const statusResponse = await azureApiCall(
-      `/threads/${threadId}/runs/${runId}?api-version=${API_VERSION}`,
-      "GET"
-    );
-    
-    if (!statusResponse.ok) {
-      const errorText = await statusResponse.text();
-      console.error("Failed to check run status:", statusResponse.status, errorText);
-      throw new Error(`Failed to check run status: ${statusResponse.status}`);
-    }
-    
-    const statusData = await statusResponse.json();
-    console.log("Run status:", statusData.status);
-    
-    if (statusData.status === "completed") {
-      break;
-    } else if (statusData.status === "failed" || statusData.status === "cancelled" || statusData.status === "expired") {
-      console.error("Run failed with status:", statusData.status, statusData.last_error);
-      throw new Error(`Run failed: ${statusData.status} - ${statusData.last_error?.message || 'Unknown error'}`);
-    }
-    
-    // Wait 1 second before polling again
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    attempts++;
-  }
-  
-  if (attempts >= maxAttempts) {
-    throw new Error("Run timed out after 60 seconds");
-  }
-  
-  // Get the latest messages from the thread
-  const messagesResponse = await azureApiCall(
-    `/threads/${threadId}/messages?api-version=${API_VERSION}&limit=1&order=desc`,
-    "GET"
-  );
-  
-  if (!messagesResponse.ok) {
-    const errorText = await messagesResponse.text();
-    console.error("Failed to get messages:", messagesResponse.status, errorText);
-    throw new Error(`Failed to get messages: ${messagesResponse.status}`);
-  }
-  
-  const messagesData = await messagesResponse.json();
-  
-  // Extract the assistant's response
-  const assistantMessage = messagesData.data?.[0];
-  if (!assistantMessage || assistantMessage.role !== "assistant") {
-    console.error("No assistant message found in response");
-    throw new Error("No assistant response found");
-  }
-  
-  // Extract text content from the response
-  const textContent = assistantMessage.content?.find((c: any) => c.type === "text");
-  if (!textContent?.text?.value) {
-    console.error("No text content in assistant message");
-    throw new Error("No text content in response");
-  }
-  
-  return textContent.text.value;
+  // Extract conversation ID for multi-turn conversations
+  const newConversationId = data.conversation_id || conversationId;
+
+  return {
+    reply: chatbotReply,
+    conversationId: newConversationId
+  };
 }
 
 serve(async (req: Request) => {
@@ -240,7 +164,7 @@ serve(async (req: Request) => {
       );
     }
 
-    const { messages }: RequestBody = await req.json();
+    const { messages, conversationId }: RequestBody = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
@@ -263,21 +187,15 @@ serve(async (req: Request) => {
     // Sanitize input
     const sanitizedContent = latestUserMessage.content.substring(0, 2000).trim();
 
-    // Create a new thread
-    const threadId = await createThread();
-    
-    // Add the user's message
-    await addMessage(threadId, sanitizedContent, "user");
-    
-    // Run the assistant and get response
-    const assistantResponse = await createAndWaitForRun(threadId);
+    // Call Azure Agent using the Agents Responses API
+    const result = await callAzureAgent(sanitizedContent, conversationId);
 
-    console.log("Azure Agent response received, length:", assistantResponse.length);
+    console.log("Azure Agent response received, length:", result.reply.length);
 
     return new Response(
       JSON.stringify({ 
-        response: assistantResponse,
-        threadId: threadId
+        response: result.reply,
+        conversationId: result.conversationId
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
