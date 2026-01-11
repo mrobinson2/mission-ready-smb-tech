@@ -155,9 +155,11 @@ export const STARTER_QUESTIONS = [
   }
 ];
 
-export const WELCOME_MESSAGE = `Hi! I'm the MRTek.ai Assistant. I can help you learn about our AI and cloud services for small and medium businesses.
+export const WELCOME_MESSAGE = `Hi there! I'm the MRTek.ai assistant—here to give you straightforward answers about how we help small and medium businesses with customer communications, simple automations, cloud setups, and AI tools.
 
-What would you like to know about? I can tell you about our services, explain our process, or help you figure out how to get started.`;
+I can explain what the Digital Assistant does, how things usually get started, typical costs, or anything else on your mind. Just ask or pick a question below—no pressure.
+
+What would you like to know?`;
 
 export const SYSTEM_PROMPT = `You are the MRTek.ai Assistant, a helpful and knowledgeable virtual assistant for MRTek.ai, a technology consulting company that helps small and medium businesses leverage cloud, AI, and automation.
 
