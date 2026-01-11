@@ -1,10 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 // Environment variables
-const AZURE_AGENT_ENDPOINT = Deno.env.get("AZURE_AGENT_ENDPOINT");
-const AZURE_AGENT_API_KEY = Deno.env.get("AZURE_AGENT_API_KEY");
-const AZURE_AGENT_ID = Deno.env.get("AZURE_AGENT_ID");
-const API_VERSION = "2024-12-01-preview";
+const AZURE_CHAT_PROXY_URL = Deno.env.get("AZURE_CHAT_PROXY_URL");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -43,146 +40,140 @@ interface RequestBody {
   threadId?: string;
 }
 
-// Build URL helper - ensures proper path construction
-function buildUrl(path: string): string {
-  const baseUrl = AZURE_AGENT_ENDPOINT!.replace(/\/$/, '');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${baseUrl}${cleanPath}?api-version=${API_VERSION}`;
+// ============================================
+// SCRIPTED FAQ RESPONSES (no AI call needed)
+// ============================================
+
+interface FAQEntry {
+  patterns: string[];  // Keywords/phrases to match
+  response: string;    // Scripted response
 }
 
-// Common headers - using api-key authentication
-function getHeaders(): Record<string, string> {
-  return {
-    "api-key": AZURE_AGENT_API_KEY!,
-    "Content-Type": "application/json",
-  };
-}
+const SCRIPTED_FAQS: FAQEntry[] = [
+  {
+    patterns: ["what services", "services do you offer", "what do you offer", "your services"],
+    response: `MRTek.ai offers a range of services designed to help small and medium businesses leverage technology effectively:
 
-async function createThread(): Promise<string> {
-  const url = buildUrl("/threads");
-  console.log(`Creating thread: ${url}`);
+• **AI Digital Assistant** – Your 24/7 virtual office team for email triage, customer support automation, lead qualification, and more.
+• **Cloud Consulting** – Cloud migration, infrastructure optimization, security setup, and cost management.
+• **AI Advisory** – Strategic guidance for AI adoption including readiness assessments and implementation roadmaps.
+• **Website & Automation** – Website development, workflow automation, and tool integrations.
+• **Fractional CTO** – Executive-level technology leadership without full-time overhead.
+
+Would you like to learn more about any specific service?`
+  },
+  {
+    patterns: ["ai digital assistant", "tell me about the ai", "digital assistant service", "virtual assistant", "ai assistant service"],
+    response: `The **AI Digital Assistant** is MRTek.ai's flagship service—think of it as your 24/7 Virtual Office Team.
+
+**What it does:**
+• Email triage and response drafting
+• Customer support automation
+• Lead qualification and follow-up
+• Voice note transcription
+• Virtual receptionist for calls
+• Website chatbot integration
+
+**Who it's for:** Small business owners who are stretched thin and need help handling repetitive communication tasks without hiring additional staff.
+
+**Key benefits:** Free up your time, respond faster to customers, and create consistent, professional communication—all while you maintain control. Our human-in-the-loop approach means AI handles the repetitive work while you make the important decisions.
+
+Ready to explore how this could work for your business? Reach out to Michael at michael@mrtek.ai!`
+  },
+  {
+    patterns: ["90 days", "get started", "how do i start", "getting started", "next steps", "90-day", "ninety day"],
+    response: `Great question! Most small businesses can see meaningful AI and automation results within 90 days. Here's our approach:
+
+**Week 1-2: Discovery**
+Understand your business, current tools, pain points, and goals. We learn how you work so we can recommend solutions that actually fit.
+
+**Week 3-4: Strategy**
+Design a pragmatic plan for cloud, AI, and automation. We prioritize quick wins while planning for sustainable growth.
+
+**Week 5-8: Implementation**
+Configure, integrate, and launch AI-powered workflows and assistants. We handle the technical work while keeping you in control.
+
+**Week 9-12: Optimization**
+Monitor, improve, and expand based on real usage and metrics. Continuous improvement, not set-and-forget.
+
+Want to kick off your 90-day plan? Email Michael at michael@mrtek.ai to schedule a discovery call!`
+  },
+  {
+    patterns: ["how much", "pricing", "cost", "price", "what does it cost", "how much does"],
+    response: `MRTek.ai offers flexible pricing models to fit different needs:
+
+• **Starter Packages** – Fixed-scope projects with clear deliverables. Great for specific implementations like setting up an AI assistant or automating a workflow.
+
+• **Advisory Retainer** – Monthly ongoing support with regular check-ins. Ideal for consistent access to tech expertise without a full-time commitment.
+
+• **Project-Based** – Custom implementations scoped to your specific needs for larger transformations or complex integrations.
+
+Pricing depends on your specific situation, scope, and goals. The best way to get a tailored estimate is to share a bit about your business and what you're looking to accomplish.
+
+Ready to discuss? Reach out to Michael at michael@mrtek.ai—he typically responds within 24 business hours.`
+  }
+];
+
+/**
+ * Check if the user message matches any FAQ patterns
+ * Returns the scripted response if matched, null otherwise
+ */
+function matchFAQ(message: string): string | null {
+  const normalized = message.toLowerCase().trim().replace(/[?!.,]/g, '');
   
-  const response = await fetch(url, {
+  for (const faq of SCRIPTED_FAQS) {
+    for (const pattern of faq.patterns) {
+      if (normalized.includes(pattern.toLowerCase())) {
+        console.log(`FAQ matched: "${pattern}" in message: "${message}"`);
+        return faq.response;
+      }
+    }
+  }
+  
+  return null;
+}
+
+// ============================================
+// AZURE FUNCTION APP PROXY
+// ============================================
+
+async function callAzureProxy(messages: ChatMessage[], threadId?: string): Promise<{ response: string; threadId?: string }> {
+  if (!AZURE_CHAT_PROXY_URL) {
+    console.error("AZURE_CHAT_PROXY_URL not configured");
+    throw new Error("AI service not configured");
+  }
+
+  console.log(`Calling Azure Function App: ${AZURE_CHAT_PROXY_URL}`);
+  
+  const response = await fetch(AZURE_CHAT_PROXY_URL, {
     method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({}),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messages,
+      threadId,
+    }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Failed to create thread:", response.status, errorText);
-    throw new Error(`Failed to create thread: ${response.status} - ${errorText}`);
+    console.error("Azure Function App error:", response.status, errorText);
+    throw new Error(`Azure Function error: ${response.status}`);
   }
 
   const data = await response.json();
-  console.log("Thread created:", data.id);
-  return data.id;
-}
-
-async function addMessage(threadId: string, content: string): Promise<void> {
-  const url = buildUrl(`/threads/${threadId}/messages`);
-  console.log(`Adding message to thread: ${url}`);
+  console.log("Azure Function App response received");
   
-  const response = await fetch(url, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({
-      role: "user",
-      content: content,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Failed to add message:", response.status, errorText);
-    throw new Error(`Failed to add message: ${response.status} - ${errorText}`);
-  }
-
-  console.log("Message added successfully");
+  return {
+    response: data.response || "No response received",
+    threadId: data.threadId,
+  };
 }
 
-async function runAgent(threadId: string): Promise<string> {
-  const url = buildUrl(`/threads/${threadId}/runs`);
-  console.log(`Running agent: ${url}`);
-  
-  const response = await fetch(url, {
-    method: "POST",
-    headers: getHeaders(),
-    body: JSON.stringify({
-      assistant_id: AZURE_AGENT_ID,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Failed to run agent:", response.status, errorText);
-    throw new Error(`Failed to run agent: ${response.status} - ${errorText}`);
-  }
-
-  const runData = await response.json();
-  const runId = runData.id;
-  console.log("Run started:", runId);
-
-  // Poll for completion
-  let status = runData.status;
-  let attempts = 0;
-  const maxAttempts = 60;
-
-  while (status !== "completed" && status !== "failed" && status !== "cancelled" && attempts < maxAttempts) {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const statusUrl = buildUrl(`/threads/${threadId}/runs/${runId}`);
-    const statusResponse = await fetch(statusUrl, {
-      method: "GET",
-      headers: getHeaders(),
-    });
-
-    if (!statusResponse.ok) {
-      const errorText = await statusResponse.text();
-      console.error("Failed to check run status:", statusResponse.status, errorText);
-      throw new Error(`Failed to check run status: ${statusResponse.status}`);
-    }
-
-    const statusData = await statusResponse.json();
-    status = statusData.status;
-    attempts++;
-    console.log(`Run status: ${status} (attempt ${attempts})`);
-  }
-
-  if (status !== "completed") {
-    throw new Error(`Run did not complete successfully. Final status: ${status}`);
-  }
-
-  // Get the messages to find the assistant's response
-  const messagesUrl = buildUrl(`/threads/${threadId}/messages`);
-  const messagesResponse = await fetch(messagesUrl, {
-    method: "GET",
-    headers: getHeaders(),
-  });
-
-  if (!messagesResponse.ok) {
-    const errorText = await messagesResponse.text();
-    console.error("Failed to get messages:", messagesResponse.status, errorText);
-    throw new Error(`Failed to get messages: ${messagesResponse.status}`);
-  }
-
-  const messagesData = await messagesResponse.json();
-  console.log("Messages retrieved:", JSON.stringify(messagesData, null, 2));
-
-  // Find the latest assistant message
-  const assistantMessages = messagesData.data?.filter((m: any) => m.role === "assistant") || [];
-  if (assistantMessages.length === 0) {
-    return "I apologize, but I couldn't generate a response. Please try again.";
-  }
-
-  const latestMessage = assistantMessages[0];
-  const content = latestMessage.content?.[0]?.text?.value || 
-                  latestMessage.content?.[0]?.text ||
-                  latestMessage.content ||
-                  "No response content found";
-
-  return typeof content === 'string' ? content : JSON.stringify(content);
-}
+// ============================================
+// MAIN HANDLER
+// ============================================
 
 serve(async (req: Request) => {
   // Handle CORS preflight
@@ -202,17 +193,6 @@ serve(async (req: Request) => {
           error: "Rate limit exceeded. Please try again later or contact michael@mrtek.ai directly." 
         }),
         { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (!AZURE_AGENT_ENDPOINT || !AZURE_AGENT_API_KEY || !AZURE_AGENT_ID) {
-      console.error("Azure Agent credentials not configured");
-      console.error("AZURE_AGENT_ENDPOINT:", AZURE_AGENT_ENDPOINT ? "set" : "missing");
-      console.error("AZURE_AGENT_API_KEY:", AZURE_AGENT_API_KEY ? "set" : "missing");
-      console.error("AZURE_AGENT_ID:", AZURE_AGENT_ID ? "set" : "missing");
-      return new Response(
-        JSON.stringify({ error: "Service temporarily unavailable" }),
-        { status: 503, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -239,21 +219,33 @@ serve(async (req: Request) => {
     // Sanitize input
     const sanitizedContent = latestUserMessage.content.substring(0, 2000).trim();
 
-    // Use existing thread or create new one
-    const threadId = existingThreadId || await createThread();
+    // ============================================
+    // STEP 1: Check for FAQ match (no AI call)
+    // ============================================
+    const faqResponse = matchFAQ(sanitizedContent);
     
-    // Add the user message to the thread
-    await addMessage(threadId, sanitizedContent);
-    
-    // Run the agent and get the response
-    const response = await runAgent(threadId);
+    if (faqResponse) {
+      console.log("Returning scripted FAQ response (no AI call)");
+      return new Response(
+        JSON.stringify({ 
+          response: faqResponse,
+          threadId: existingThreadId || null
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
-    console.log("Agent response received, length:", response.length);
+    // ============================================
+    // STEP 2: No FAQ match - call Azure Function App
+    // ============================================
+    console.log("No FAQ match, calling Azure Function App proxy");
+    
+    const result = await callAzureProxy(messages, existingThreadId);
 
     return new Response(
       JSON.stringify({ 
-        response: response,
-        threadId: threadId
+        response: result.response,
+        threadId: result.threadId
       }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
