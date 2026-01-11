@@ -165,7 +165,7 @@ async function callAzureProxy(messages: ChatMessage[], threadId?: string): Promi
     throw new Error("AI service not configured");
   }
 
-  console.log(`Calling Azure Function App: ${AZURE_CHAT_PROXY_URL}`);
+  console.log("Calling Azure Function App proxy");
   
   const fetchResponse = await fetch(AZURE_CHAT_PROXY_URL, {
     method: "POST",
