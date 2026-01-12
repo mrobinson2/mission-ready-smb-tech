@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Mic, CheckCircle, Calendar } from "lucide-react";
+import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Calendar, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Home = () => {
@@ -10,25 +10,25 @@ const Home = () => {
     {
       icon: Cloud,
       title: "Cloud Consulting",
-      description: "Secure cloud systems that grow with your business and cut costs without vendor lock-in. Expect 30-50% lower infrastructure expenses.",
+      description: "Secure cloud systems that grow with your business and cut costs without vendor lock-in.",
       color: "text-blue-600"
     },
     {
       icon: Brain,
       title: "AI Advisory",
-      description: "Responsible AI guidance to automate simple tasks and make better decisions. Prioritize jobs by profit per hour for maximum efficiency.",
+      description: "Responsible AI guidance to automate simple tasks and make better decisions.",
       color: "text-purple-600"
     },
     {
       icon: Code,
       title: "Website & Automation",
-      description: "Clean, easy-to-use websites connected to simple automations that handle forms, updates, and CRM entries.",
+      description: "Clean websites connected to automations that handle forms, updates, and CRM entries.",
       color: "text-green-600"
     },
     {
       icon: Users,
       title: "Fractional CTO",
-      description: "Part-time tech leadership to align your tools with business goals. Clear direction without full-time executive costs.",
+      description: "Part-time tech leadership to align your tools with business goals.",
       color: "text-orange-600"
     }
   ];
@@ -56,27 +56,27 @@ const Home = () => {
       {/* Hero Section */}
       <section 
         className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${heroImage})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${heroImage})` }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Helping Small and Medium Businesses Use Technology to{" "}
-            <span className="text-blue-400">Save Time and Work Smarter</span>
+            More Booked Jobs. Less Office Chaos.{" "}
+            <span className="text-blue-400">No Extra Staff.</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-4xl mx-auto text-gray-200">
-            We help you handle customer communications better, reduce routine manual work, and avoid missed opportunities. 
-            With 30 years of hands-on enterprise experience, we deliver straightforward cloud, AI, and automation tools 
-            that fit your budget and grow with your business.
+          <p className="text-xl md:text-2xl mb-6 max-w-4xl mx-auto text-gray-200">
+            We help field service businesses handle calls, texts, and emails—automate paperwork and follow-ups—and keep jobs moving. 
+            Spend less time in the office. More time running the business.
           </p>
-          <p className="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">
-            Call today to find out how your business can save time and money while improving customer service.
+          <p className="text-lg mb-8 text-gray-300 max-w-3xl mx-auto">
+            Built on 30 years of enterprise experience. Right-sized for growing service businesses. 
+            From AI assistants and workflow automation to secure cloud systems and fractional CTO guidance—simple tools that scale when you're ready.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <Link to="/contact">Get Started Today</Link>
+              <Link to="/contact">See Where Jobs Are Slipping Through</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white/20">
-              <Link to="/about">Learn More</Link>
+              <Link to="/services">View Our Services</Link>
             </Button>
           </div>
         </div>
@@ -94,13 +94,7 @@ const Home = () => {
                 Your Always-On Office Helper
               </h2>
               <p className="text-xl text-muted-foreground mb-6">
-                Designed for small and medium businesses that can't afford to miss opportunities, 
-                our Digital Assistant handles routine customer communications so you can focus on what matters most.
-              </p>
-              <p className="text-muted-foreground mb-8">
-                We keep your team aware of and fully engaged in all customer communications, with strong data security 
-                built in and human oversight for every key decision. The Digital Office Assistant will pay for itself 
-                several times over and will enable your team to focus on higher-priority tasks.
+                Handle customer communications without missing jobs or hiring more office staff.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -149,29 +143,29 @@ const Home = () => {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Answers calls and captures leads around the clock</p>
+                  <p className="text-muted-foreground">Answer calls, texts, emails, and website inquiries 24/7</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Provides immediate website responses via intelligent chatbot (based on your FAQs and guidance)</p>
+                  <p className="text-muted-foreground">Capture leads and schedule or confirm appointments</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Reads, prioritizes, and drafts responses to incoming emails (for your review and approval)</p>
+                  <p className="text-muted-foreground">Draft responses for review and approval</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Automatically schedules and confirms appointments</p>
+                  <p className="text-muted-foreground">Transcribe calls into searchable notes</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Makes outbound calls for appointment confirmations and follow-ups</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-muted-foreground">Transcribes voice conversations into searchable notes</p>
+                  <p className="text-muted-foreground">Handle follow-ups and confirmations automatically</p>
                 </div>
               </div>
+              
+              <p className="mt-6 text-sm font-medium text-foreground border-t border-border pt-4">
+                Fewer missed opportunities. Faster responses. Less time stuck behind a desk.
+              </p>
             </div>
           </div>
         </div>
@@ -182,7 +176,7 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Additional Services
+              Technology That Grows With Your Business
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               From cloud strategy to AI implementation, we provide the expertise 
@@ -234,9 +228,7 @@ const Home = () => {
             <p className="text-lg text-muted-foreground">
               Our 30 years of real-world IT experience means we understand what actually works at scale—and we adapt it 
               so it fits your operations, budget, and team. We approach AI carefully: practical uses only, with human oversight, 
-              clear guidelines, and strong data security to keep things safe and reliable. Customers typically see faster customer 
-              responses, fewer missed leads, and smoother daily work—real, measurable improvements without overpromising or 
-              unnecessary complexity. We're here to help your business run better and grow steadily, one practical step at a time.
+              clear guidelines, and strong data security to keep things safe and reliable.
             </p>
           </div>
 
@@ -260,16 +252,13 @@ const Home = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-6">
             Ready to See How This Fits Your Business?
           </h2>
-          <p className="text-xl text-primary-foreground/90 mb-4 max-w-2xl mx-auto">
-            Call today to find out how this could save your business time and money while improving customer service. 
-            No pressure—just a straightforward conversation.
-          </p>
-          <p className="text-lg text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-            Have questions? Send us a quick note, and we'll reply within 24 hours to discuss what might work best for you.
+          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
+            Let's talk through what's slowing you down today—and what could help tomorrow. 
+            No pressure. No jargon. Just a straightforward conversation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" variant="secondary">
-              <Link to="/contact">Schedule a Consultation</Link>
+              <Link to="/contact">Schedule a Free Consultation</Link>
             </Button>
             <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90">
               <Link to="/contact">Send Us a Message</Link>
