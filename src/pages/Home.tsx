@@ -66,7 +66,15 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            More Booked Jobs. Less Office Chaos.{" "}
+            More Booked Jobs.{" "}
+            <motion.span 
+              className="text-blue-300"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              Less Office Chaos.
+            </motion.span>{" "}
             <motion.span 
               className="text-blue-400"
               initial={{ opacity: 0 }}
