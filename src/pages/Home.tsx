@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Cloud, Brain, Code, Users, ChevronRight, Shield, Zap, Target, Bot, Mail, Phone, MessageSquare, Calendar, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const Home = () => {
@@ -59,26 +60,53 @@ const Home = () => {
         style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${heroImage})` }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <motion.h1 
+            className="text-4xl md:text-6xl font-bold mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             More Booked Jobs. Less Office Chaos.{" "}
-            <span className="text-blue-400">No Extra Staff.</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-6 max-w-4xl mx-auto text-gray-200">
+            <motion.span 
+              className="text-blue-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              No Extra Staff.
+            </motion.span>
+          </motion.h1>
+          <motion.p 
+            className="text-xl md:text-2xl mb-6 max-w-4xl mx-auto text-gray-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             We help field service businesses handle calls, texts, and emails—automate paperwork and follow-ups—and keep jobs moving. 
             Spend less time in the office. More time running the business.
-          </p>
-          <p className="text-lg mb-8 text-gray-300 max-w-3xl mx-auto">
+          </motion.p>
+          <motion.p 
+            className="text-lg mb-8 text-gray-300 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
             Built on 30 years of enterprise experience. Right-sized for growing service businesses. 
             From AI assistants and workflow automation to secure cloud systems and fractional CTO guidance—simple tools that scale when you're ready.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          </motion.p>
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+          >
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
               <Link to="/contact">See Where Jobs Are Slipping Through</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white/20">
               <Link to="/services">View Our Services</Link>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </section>
 
