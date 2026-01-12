@@ -109,7 +109,7 @@ const Home = () => {
             transition={{ duration: 0.6, delay: 0.7 }}
           >
             <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-              <Link to="/contact">See Where Jobs Are Slipping Through</Link>
+              <Link to="/contact">Schedule a Consultation</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="bg-white/10 border-white text-white hover:bg-white/20">
               <Link to="/services">View Our Services</Link>
